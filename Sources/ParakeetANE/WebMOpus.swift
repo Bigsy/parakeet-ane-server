@@ -1,4 +1,5 @@
 import AVFoundation
+import os
 
 /// In-process decoding for the WebM/Opus that browser `MediaRecorder`s produce, so
 /// the common case skips spawning ffmpeg (~30 ms warm, ~150 ms after idle).
@@ -21,10 +22,58 @@ enum WebMOpus {
         var codecPrivate: [UInt8] = []
     }
 
+    struct Stream {
+        let track: Track
+        let packets: [ArraySlice<UInt8>]
+        /// Encoder padding to drop from the end, in 48 kHz samples (Matroska DiscardPadding).
+        let endPadding: Int
+    }
+
+    /// Samples Core Audio's Opus decoder already drops from the start of a stream:
+    /// Opus's 2.5 ms decoder delay. It isn't reported through `primeInfo`, so it is
+    /// measured: `WebMOpusTests.alignsSampleExactlyWithFFmpeg` fails if macOS changes it.
+    static let coreAudioDecoderDelay = 120
+
     /// Decode to 16 kHz mono Float32 samples.
     static func decode(_ bytes: [UInt8]) throws -> [Float] {
-        let (track, packets) = try demux(bytes)
-        return try decodeOpus(packets: packets, channels: track.channels, preSkip: preSkip(track.codecPrivate))
+        let stream = try demux(bytes)
+        let samples = try decodeOpus(packets: stream.packets, channels: stream.track.channels)
+        // Opus trims are defined in 48 kHz samples: the encoder delay OpusHead declares
+        // (less what the decoder already dropped) and the padding the container marks.
+        // The converter compensates for its own resampling latency, so they scale to
+        // the output rate directly.
+        let scale = 48_000 / AudioDecoder.sampleRate
+        let leading = max(preSkip(stream.track.codecPrivate) - coreAudioDecoderDelay, 0) / scale
+        return Array(samples.dropFirst(leading).dropLast(stream.endPadding / scale))
+    }
+
+    /// Feed `input` through `converter` in one go and collect the mono Float32 output.
+    private static func convertAll(
+        _ converter: AVAudioConverter, input: AVAudioBuffer, expectedFrames: Int
+    ) throws -> [Float] {
+        // Core Audio may call the input block on another thread, so its one bit of
+        // state is locked; the buffer is only read once handed over.
+        let input = UncheckedSendable(value: input)
+        let handedOver = OSAllocatedUnfairLock(initialState: false)
+        var samples: [Float] = []
+        samples.reserveCapacity(expectedFrames)
+        while true {
+            guard let output = AVAudioPCMBuffer(
+                    pcmFormat: converter.outputFormat, frameCapacity: AVAudioFrameCount(expectedFrames + 4_096))
+            else { throw DecodeError.decoderFailed("output buffer") }
+            var error: NSError?
+            let status = converter.convert(to: output, error: &error) { _, inputStatus in
+                let first = handedOver.withLock { done in
+                    defer { done = true }
+                    return !done
+                }
+                inputStatus.pointee = first ? .haveData : .endOfStream
+                return first ? input.value : nil
+            }
+            if status == .error { throw DecodeError.decoderFailed(error?.localizedDescription ?? "conversion") }
+            samples += UnsafeBufferPointer(start: output.floatChannelData![0], count: Int(output.frameLength))
+            if status == .endOfStream || output.frameLength == 0 { return samples }
+        }
     }
 
     // MARK: - Matroska demuxing
@@ -42,6 +91,7 @@ enum WebMOpus {
         static let cluster: UInt32 = 0x1F43_B675
         static let blockGroup: UInt32 = 0xA0
         static let block: UInt32 = 0xA1
+        static let discardPadding: UInt32 = 0x75A2
         static let simpleBlock: UInt32 = 0xA3
     }
 
@@ -51,9 +101,9 @@ enum WebMOpus {
         ID.segment, ID.tracks, ID.trackEntry, ID.audio, ID.cluster, ID.blockGroup,
     ]
 
-    static func demux(_ bytes: [UInt8]) throws -> (Track, [ArraySlice<UInt8>]) {
+    static func demux(_ bytes: [UInt8]) throws -> Stream {
         var tracks: [Track] = []
-        var blocks: [(track: UInt64, frames: [ArraySlice<UInt8>])] = []
+        var blocks: [(track: UInt64, frames: [ArraySlice<UInt8>], discardNanoseconds: Int64)] = []
         var position = 0
 
         while position < bytes.count {
@@ -82,16 +132,22 @@ enum WebMOpus {
             case ID.channels where !tracks.isEmpty:
                 tracks[tracks.count - 1].channels = Int(readUInt(data))
             case ID.simpleBlock, ID.block:
-                blocks.append(try parseBlock(data))
+                let (track, frames) = try parseBlock(data)
+                blocks.append((track, frames, 0))
+            case ID.discardPadding where !blocks.isEmpty:
+                // Follows its Block inside the same BlockGroup.
+                blocks[blocks.count - 1].discardNanoseconds = readInt(data)
             default:
                 break
             }
         }
 
         guard let opus = tracks.first(where: { $0.codecID == "A_OPUS" }) else { throw DecodeError.noOpusTrack }
-        let packets = blocks.filter { $0.track == opus.number }.flatMap(\.frames)
+        let opusBlocks = blocks.filter { $0.track == opus.number }
+        let packets = opusBlocks.flatMap(\.frames)
         guard !packets.isEmpty else { throw DecodeError.malformed("no Opus packets") }
-        return (opus, packets)
+        let discard = opusBlocks.map { max($0.discardNanoseconds, 0) }.reduce(0, +)
+        return Stream(track: opus, packets: packets, endPadding: Int(discard * 48_000 / 1_000_000_000))
     }
 
     private static func parseBlock(_ data: ArraySlice<UInt8>) throws -> (track: UInt64, frames: [ArraySlice<UInt8>]) {
@@ -143,6 +199,13 @@ enum WebMOpus {
         data.prefix(8).reduce(0) { $0 << 8 | UInt64($1) }
     }
 
+    /// A big-endian two's complement integer of 1-8 bytes.
+    private static func readInt(_ data: ArraySlice<UInt8>) -> Int64 {
+        guard let first = data.first, data.count <= 8 else { return 0 }
+        let initial: Int64 = first & 0x80 != 0 ? -1 : 0
+        return data.reduce(initial) { $0 << 8 | Int64($1) }
+    }
+
     // MARK: - Opus decoding
 
     /// Samples at 48 kHz that `OpusHead` asks the decoder to discard (encoder delay).
@@ -172,7 +235,8 @@ enum WebMOpus {
         return frames * frameSize
     }
 
-    private static func decodeOpus(packets: [ArraySlice<UInt8>], channels: Int, preSkip: Int) throws -> [Float] {
+    /// Decode Opus packets straight to 16 kHz mono, untrimmed.
+    static func decodeOpus(packets: [ArraySlice<UInt8>], channels: Int) throws -> [Float] {
         // Core Audio's Opus decoder takes a fixed frames-per-packet, which browsers use.
         guard let framesPerPacket = samplesPerPacket(packets[0]),
             packets.allSatisfy({ samplesPerPacket($0) == framesPerPacket })
@@ -202,30 +266,13 @@ enum WebMOpus {
         }
         input.packetCount = AVAudioPacketCount(packets.count)
         input.byteLength = UInt32(offset)
-
-        let expectedFrames = packets.count * framesPerPacket * AudioDecoder.sampleRate / 48_000
-        var samples: [Float] = []
-        samples.reserveCapacity(expectedFrames)
-        var inputConsumed = false
-        while true {
-            guard let output = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: AVAudioFrameCount(expectedFrames + 4_096))
-            else { throw DecodeError.decoderFailed("output buffer") }
-            var error: NSError?
-            let status = converter.convert(to: output, error: &error) { _, inputStatus in
-                if inputConsumed {
-                    inputStatus.pointee = .endOfStream
-                    return nil
-                }
-                inputConsumed = true
-                inputStatus.pointee = .haveData
-                return input
-            }
-            if status == .error { throw DecodeError.decoderFailed(error?.localizedDescription ?? "unknown") }
-            samples += UnsafeBufferPointer(start: output.floatChannelData![0], count: Int(output.frameLength))
-            if status == .endOfStream || output.frameLength == 0 { break }
-        }
-
-        // Drop the encoder delay OpusHead declares, scaled from 48 kHz.
-        return Array(samples.dropFirst(preSkip * AudioDecoder.sampleRate / 48_000))
+        return try convertAll(
+            converter, input: input, expectedFrames: packets.count * framesPerPacket * AudioDecoder.sampleRate / 48_000)
     }
+}
+
+/// Carries a non-Sendable value into a `@Sendable` closure that is known to run
+/// before the value is touched again.
+private struct UncheckedSendable<Value>: @unchecked Sendable {
+    let value: Value
 }

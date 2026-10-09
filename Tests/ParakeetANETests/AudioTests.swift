@@ -85,6 +85,23 @@ private let ffmpeg = AudioDecoder.locateFFmpeg()
         #expect(abs(TestAudio.rms(ours) - TestAudio.rms(theirs)) < 0.1 * TestAudio.rms(theirs))
     }
 
+    /// Same samples as ffmpeg, not just the same length: pre-skip, Core Audio's decoder
+    /// delay and DiscardPadding all trimmed. A misaligned start or a padded tail was
+    /// enough to change Parakeet's punctuation at the end of a clip.
+    @Test func alignsSampleExactlyWithFFmpeg() throws {
+        let ffmpeg = try #require(ffmpeg)
+        let webm = try TestAudio.opus(fromWAV: TestAudio.noiseWAV(seconds: 2), ffmpeg: ffmpeg)
+        let ours = try WebMOpus.decode(webm)
+        let theirs = try TestAudio.ffmpegDecode(webm, ffmpeg: ffmpeg)
+        let overlap = 2_000..<(min(ours.count, theirs.count) - 2_000)
+        let bestLag = (-200...200).max { a, b in
+            overlap.reduce(Float(0)) { $0 + ours[$1] * theirs[$1 + a] }
+                < overlap.reduce(Float(0)) { $0 + ours[$1] * theirs[$1 + b] }
+        }
+        #expect(bestLag == 0)
+        #expect(abs(ours.count - theirs.count) <= 2)
+    }
+
     /// Live recorders write Segments and Clusters with unknown sizes.
     @Test func decodesLiveStreamWithUnknownSizes() throws {
         let webm = try TestAudio.opus(
@@ -95,8 +112,7 @@ private let ffmpeg = AudioDecoder.locateFFmpeg()
     @Test func downmixesStereoToMono() throws {
         let webm = try TestAudio.opus(
             fromWAV: TestAudio.wav(seconds: 1, channels: 2), ffmpeg: try #require(ffmpeg), extraArguments: ["-ac", "2"])
-        let (track, _) = try WebMOpus.demux(webm)
-        #expect(track.channels == 2)
+        #expect(try WebMOpus.demux(webm).track.channels == 2)
         #expect(abs(try WebMOpus.decode(webm).count - 16_000) < 400)
     }
 
