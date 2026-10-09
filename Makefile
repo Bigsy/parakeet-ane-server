@@ -16,7 +16,9 @@ install: build
 	mkdir -p $(BIN_DIR)
 	install -m 755 .build/release/parakeet-ane-server $(BIN_DIR)/parakeet-ane-server
 	sed 's|__HOME__|$(HOME)|g' launchd/$(LABEL).plist > $(AGENT)
-	-launchctl bootout $(DOMAIN)/$(LABEL) 2>/dev/null
+	@# bootout returns before the job is gone; bootstrapping too early fails with error 5.
+	@launchctl bootout $(DOMAIN)/$(LABEL) 2>/dev/null; \
+		for i in $$(seq 1 50); do launchctl print $(DOMAIN)/$(LABEL) >/dev/null 2>&1 || break; sleep 0.1; done
 	launchctl bootstrap $(DOMAIN) $(AGENT)
 	@echo "Installed. Waiting for the model to load..."
 	@for i in $$(seq 1 120); do curl -sf http://127.0.0.1:11435/health >/dev/null && echo "Ready on http://127.0.0.1:11435/v1" && exit 0; sleep 1; done; \
