@@ -14,11 +14,12 @@ M4 Pro, warm, end to end over HTTP:
 
 | Clip | OpenWhispr built-in (CPU)  | This server (ANE) |
 |------|---------------------------:|------------------:|
-| 8 s  | ~170 ms (~500 ms swapped)  | ~62 ms            |
-| 25 s | ~530 ms                    | ~163 ms           |
+| 8 s  | ~170 ms (~500 ms swapped)  | ~70 ms            |
+| 25 s | ~530 ms                    | ~175 ms           |
 
-Both measured with the WebM/Opus uploads browsers record. Those are demuxed and
-decoded in-process (7-20 ms) rather than by spawning ffmpeg, which costs ~30 ms warm
+This server's numbers include decoding the WebM/Opus uploads browsers record;
+OpenWhispr's built-in was fed raw samples, so its numbers don't. WebM is demuxed and
+decoded in-process (7-25 ms) rather than by spawning ffmpeg, which costs ~30 ms warm
 and ~150 ms after the Mac has been idle.
 
 Each upload is transcribed in one pass with full context. Nothing is split on pauses,
@@ -34,7 +35,9 @@ make install
 ```
 
 This builds a release binary, copies it to `~/.local/bin`, and installs a LaunchAgent
-(`com.hedworth.parakeet-ane`) that starts the server at login on `127.0.0.1:11435`.
+(`com.hedworth.parakeet-ane`) that starts the server at login on `127.0.0.1:11435`
+with `--keep-warm 30`. Without keep-warm, the first dictation after ~90 s idle takes
+~125 ms instead of ~72 ms (8 s clip) while the Neural Engine clocks back up.
 The first start downloads the CoreML models (~600 MB) into
 `~/Library/Application Support/FluidAudio/Models` and compiles them for the Neural
 Engine, which takes a minute. Later starts take about 12 s.

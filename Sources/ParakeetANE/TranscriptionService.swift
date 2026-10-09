@@ -39,22 +39,24 @@ public actor TranscriptionService {
 
     /// Run one second of silence through the model, so the first real request
     /// doesn't pay for Neural Engine compilation or paged-out weights.
-    public func warmUp() async {
+    public func warmUp(logLevel: Logger.Level = .info) async {
         let start = ContinuousClock.now
         do {
             _ = try await transcribe([Float](repeating: 0, count: Self.minimumSamples))
-            logger.info("Warm-up took \(start.duration(to: .now).milliseconds) ms")
+            logger.log(level: logLevel, "Warm-up took \(start.duration(to: .now).milliseconds) ms")
         } catch {
             logger.warning("Warm-up failed: \(error)")
         }
     }
 
     /// Warm the model whenever it has sat idle for `interval`. Runs until cancelled.
+    /// Without it, the first request after ~90 s idle takes ~50 ms longer while the
+    /// Neural Engine and CPU clock back up.
     public func keepWarm(every interval: Duration) async {
         while !Task.isCancelled {
             try? await Task.sleep(for: interval)
             if lastUse.duration(to: .now) >= interval {
-                await warmUp()
+                await warmUp(logLevel: .debug)
             }
         }
     }
