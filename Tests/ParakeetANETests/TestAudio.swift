@@ -18,11 +18,13 @@ enum TestAudio {
             + Array("data".utf8) + le(UInt32(pcm.count)) + pcm
     }
 
-    /// Encode a WAV to WebM/Opus with ffmpeg, as a browser recorder would produce.
-    static func webm(fromWAV wav: [UInt8], ffmpeg: String) throws -> [UInt8] {
+    /// Encode a WAV to Opus with ffmpeg: WebM by default, as a browser recorder would produce.
+    static func opus(
+        fromWAV wav: [UInt8], ffmpeg: String, container: String = "webm", extraArguments: [String] = []
+    ) throws -> [UInt8] {
         let dir = FileManager.default.temporaryDirectory
         let input = dir.appendingPathComponent("parakeet-test-\(UUID().uuidString).wav")
-        let output = dir.appendingPathComponent("parakeet-test-\(UUID().uuidString).webm")
+        let output = dir.appendingPathComponent("parakeet-test-\(UUID().uuidString).\(container)")
         defer {
             try? FileManager.default.removeItem(at: input)
             try? FileManager.default.removeItem(at: output)
@@ -30,10 +32,15 @@ enum TestAudio {
         try Data(wav).write(to: input)
         let process = Process()
         process.executableURL = URL(fileURLWithPath: ffmpeg)
-        process.arguments = ["-nostdin", "-loglevel", "error", "-i", input.path, "-c:a", "libopus", output.path]
+        process.arguments =
+            ["-nostdin", "-loglevel", "error", "-i", input.path, "-c:a", "libopus"] + extraArguments + [output.path]
         try process.run()
         process.waitUntilExit()
         return Array(try Data(contentsOf: output))
+    }
+
+    static func rms(_ samples: [Float]) -> Float {
+        (samples.reduce(0) { $0 + $1 * $1 } / Float(max(samples.count, 1))).squareRoot()
     }
 
     /// A multipart/form-data body with a `file` part plus plain text fields.
