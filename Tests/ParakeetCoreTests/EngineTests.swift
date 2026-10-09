@@ -105,6 +105,29 @@ func waitUntil(_ condition: () async -> Bool) async {
         #expect(await model.counts == [16000, 17000, 18000])
     }
 
+    @Test func cancellationCannotPromoteAQueuedJobIntoInference() async throws {
+        let model = BarrierModel()
+        let engine = ParakeetEngine(preparedModel: model)
+        let first = Task { try await engine.transcribe(PCM16kMono(samples: .init(repeating: 0, count: 16000))) }
+        await model.waitForCalls(1)
+        let cancelled = Task { try await engine.transcribe(PCM16kMono(samples: .init(repeating: 0, count: 17000))) }
+        await waitUntil { await engine.pendingJobCount == 1 }
+        cancelled.cancel()
+        // Release inference immediately, without waiting for cancellation's actor lookup.
+        await model.resolve()
+        await #expect(throws: ParakeetError.cancelled) { try await cancelled.value }
+        _ = try await first.value
+        let next = Task { try await engine.transcribe(PCM16kMono(samples: .init(repeating: 0, count: 18000))) }
+        await model.waitForCalls(2)
+        let counts = await model.counts
+        #expect(counts == [16000, 18000])
+        if counts.last == 17000 {
+            await model.resolve(); await model.waitForCalls(3)
+        }
+        await model.resolve()
+        _ = try await next.value
+    }
+
     @Test func retainedSamplesAndAudioLimits() async throws {
         let model = BarrierModel()
         let engine = ParakeetEngine(configuration: .init(maximumAudioSamples: 3, maximumQueuedSamples: 1), preparedModel: model)

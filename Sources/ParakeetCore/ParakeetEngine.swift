@@ -79,10 +79,11 @@ public actor ParakeetEngine {
                          queueDuration: .zero, inferenceDuration: .zero, totalDuration: start.duration(to: .now))
         }
         let id = UUID()
+        let cancellation = CancellationFlag()
         let result: TranscriptionResult = try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 // The caller can be cancelled before the handler's actor message arrives.
-                guard !Task.isCancelled else {
+                guard !Task.isCancelled, !cancellation.isCancelled else {
                     continuation.resume(throwing: ParakeetError.cancelled); return
                 }
                 if active != nil {
@@ -90,7 +91,7 @@ public actor ParakeetEngine {
                           audio.samples.count <= configuration.maximumQueuedSamples - queuedSamples
                     else { continuation.resume(throwing: ParakeetError.queueFull); return }
                 }
-                var job = Job(id: id, audio: audio, admitted: start, continuation: continuation)
+                var job = Job(id: id, audio: audio, admitted: start, cancellation: cancellation, continuation: continuation)
                 if active != nil, let timeout = configuration.queueWaitTimeout {
                     job.deadline = Task {
                         do { try await Task.sleep(for: timeout) } catch { return }
@@ -101,6 +102,7 @@ public actor ParakeetEngine {
                 startNext()
             }
         } onCancel: {
+            cancellation.cancel()
             Task { await self.cancel(id, reason: .cancelled) }
         }
         try checkCancellation()
@@ -111,6 +113,7 @@ public actor ParakeetEngine {
         let id: UUID
         let audio: PCM16kMono
         let admitted: ContinuousClock.Instant
+        let cancellation: CancellationFlag
         var continuation: CheckedContinuation<TranscriptionResult, any Error>?
         var deadline: Task<Void, Never>?
     }
@@ -132,11 +135,14 @@ public actor ParakeetEngine {
             let outcome: Result<String, any Error>
             do {
                 try Task.checkCancellation()
+                guard !job.cancellation.isCancelled else { throw CancellationError() }
                 let samples = job.audio.samples
                 let padded = samples.count < PCM16kMono.sampleRate
                     ? samples + [Float](repeating: 0, count: PCM16kMono.sampleRate - samples.count) : samples
+                guard !job.cancellation.isCancelled else { throw CancellationError() }
                 let text = try await model.transcribe(padded)
                 try Task.checkCancellation()
+                guard !job.cancellation.isCancelled else { throw CancellationError() }
                 outcome = .success(text.trimmingCharacters(in: .whitespacesAndNewlines))
             } catch { outcome = .failure(error) }
             self.complete(job.id, began: began, outcome: outcome)
