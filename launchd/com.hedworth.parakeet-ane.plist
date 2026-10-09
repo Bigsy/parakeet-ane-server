@@ -20,8 +20,6 @@
 		<string>11435</string>
 		<string>--ffmpeg</string>
 		<string>/opt/homebrew/bin/ffmpeg</string>
-		<string>--keep-warm</string>
-		<string>30</string>
 	</array>
 
 	<key>RunAtLoad</key>

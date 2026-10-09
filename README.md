@@ -25,6 +25,10 @@ and ~150 ms after the Mac has been idle.
 Each upload is transcribed in one pass with full context. Nothing is split on pauses,
 so short phrases between pauses aren't dropped.
 
+After a minute or two idle the first request takes ~50 ms longer (~125 ms for the 8 s
+clip) while macOS clocks the CPU and Neural Engine back up. Re-running the model on
+silence every 30 s while idle didn't change that, so the server doesn't try.
+
 ## Install
 
 Needs macOS 14+, Apple Silicon and Xcode 16+ (Swift 6). ffmpeg (`brew install ffmpeg`)
@@ -35,12 +39,10 @@ make install
 ```
 
 This builds a release binary, copies it to `~/.local/bin`, and installs a LaunchAgent
-(`com.hedworth.parakeet-ane`) that starts the server at login on `127.0.0.1:11435`
-with `--keep-warm 30`. Without keep-warm, the first dictation after ~90 s idle takes
-~125 ms instead of ~72 ms (8 s clip) while the Neural Engine clocks back up.
+(`com.hedworth.parakeet-ane`) that starts the server at login on `127.0.0.1:11435`.
 The first start downloads the CoreML models (~600 MB) into
 `~/Library/Application Support/FluidAudio/Models` and compiles them for the Neural
-Engine, which takes a minute. Later starts take about 12 s.
+Engine (~12 s once downloaded). Later starts take well under a second.
 
 `make logs` follows the log, `make restart` restarts it, `make uninstall` removes it.
 
@@ -75,7 +77,6 @@ by Core Audio's Opus decoder. Ogg, and any WebM outside that, go through ffmpeg.
 --host <host>                   Address to bind (default: 127.0.0.1)
 --port <port>                   Port (default: 11435)
 --ffmpeg <path>                 ffmpeg binary (default: first found)
---keep-warm <seconds>           Re-warm the model after this long idle (default: off)
 --log-transcripts               Log transcript text (default: off)
 --log-level <level>             Log level (default: info)
 ```
