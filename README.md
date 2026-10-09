@@ -12,20 +12,22 @@ OpenWhispr's built-in Parakeet runs on the CPU through sherpa-onnx in a process 
 macOS happily swaps out between dictations. Same model (Parakeet Unified 0.6B), same
 M4 Pro, warm, end to end over HTTP:
 
-| Clip | OpenWhispr built-in (CPU) | This server (ANE), WebM upload | This server, WAV upload |
-|------|--------------------------:|-------------------------------:|------------------------:|
-| 8 s  | ~170 ms (~500 ms swapped) | ~105 ms                        | ~60 ms                  |
-| 25 s | ~530 ms                   | ~195 ms                        | ~145 ms                 |
+| Clip | OpenWhispr built-in (CPU)  | This server (ANE) |
+|------|---------------------------:|------------------:|
+| 8 s  | ~170 ms (~500 ms swapped)  | ~62 ms            |
+| 25 s | ~530 ms                    | ~163 ms           |
 
-WebM includes ~40-50 ms for ffmpeg to decode the Opus audio browsers record.
+Both measured with the WebM/Opus uploads browsers record. Those are demuxed and
+decoded in-process (7-20 ms) rather than by spawning ffmpeg, which costs ~30 ms warm
+and ~150 ms after the Mac has been idle.
 
 Each upload is transcribed in one pass with full context. Nothing is split on pauses,
 so short phrases between pauses aren't dropped.
 
 ## Install
 
-Needs macOS 14+, Apple Silicon, Xcode 16+ (Swift 6), and ffmpeg for WebM/Ogg uploads
-(`brew install ffmpeg`).
+Needs macOS 14+, Apple Silicon and Xcode 16+ (Swift 6). ffmpeg (`brew install ffmpeg`)
+is optional: it handles Ogg uploads and any WebM the built-in reader can't.
 
 ```sh
 make install
@@ -59,7 +61,9 @@ curl -F file=@clip.wav http://127.0.0.1:11435/v1/audio/transcriptions
 ```
 
 Uploads are identified by their bytes, not their name or content type. WAV, AIFF,
-CAF, FLAC, MP3 and M4A decode natively; WebM and Ogg go through ffmpeg.
+CAF, FLAC, MP3 and M4A decode through Core Audio. WebM/Opus (single track, unlaced or
+fixed-laced, one frame duration: what browsers write) is demuxed in-process and decoded
+by Core Audio's Opus decoder. Ogg, and any WebM outside that, go through ffmpeg.
 
 ## Options
 
