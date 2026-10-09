@@ -95,9 +95,24 @@ public struct AudioDecoder: Sendable {
             process.standardOutput = stdout
             process.standardError = stderr
             try process.run()
-            // Drain stdout before waiting, or a long clip fills the pipe and deadlocks.
+            defer {
+                if process.isRunning {
+                    process.terminate()
+                    process.waitUntilExit()
+                }
+            }
+            // Drain both pipes concurrently: ffmpeg can block on stderr while
+            // we're still waiting for the end of stdout. Keep only 64 KiB of
+            // diagnostics, but continue draining the rest.
+            let errorReader = Task.detached {
+                var diagnostics = Data()
+                while let chunk = try stderr.fileHandleForReading.read(upToCount: 16_384), !chunk.isEmpty {
+                    diagnostics.append(chunk.prefix(max(65_536 - diagnostics.count, 0)))
+                }
+                return diagnostics
+            }
             let output = try stdout.fileHandleForReading.readToEnd() ?? Data()
-            let errorOutput = try stderr.fileHandleForReading.readToEnd() ?? Data()
+            let errorOutput = try await errorReader.value
             process.waitUntilExit()
             guard process.terminationStatus == 0 else {
                 throw AudioDecodeError.ffmpegFailed(

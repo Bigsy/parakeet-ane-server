@@ -123,6 +123,19 @@ struct StubModel: SpeechModel {
         }
     }
 
+    @Test func malformedWebMMetadataReturnsAnError() async throws {
+        // A 17-byte upload whose channel count cannot fit in Int used to trap.
+        let bytes: [UInt8] = [0x1A, 0x45, 0xDF, 0xA3, 0x80, 0xAE, 0x8A, 0x9F, 0x88]
+            + [UInt8](repeating: 0xFF, count: 8)
+        let (headers, body) = upload(bytes)
+        try await app().test(.router) { client in
+            try await client.execute(uri: "/v1/audio/transcriptions", method: .post, headers: headers, body: body) {
+                #expect($0.status == .badRequest)
+                #expect(String(buffer: $0.body).contains("invalid_request_error"))
+            }
+        }
+    }
+
     @Test(arguments: [
         ("multipart/form-data; boundary=abc", "abc"),
         ("multipart/form-data; boundary=\"quoted value\"", "quoted value"),

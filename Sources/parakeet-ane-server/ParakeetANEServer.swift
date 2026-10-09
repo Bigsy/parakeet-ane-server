@@ -36,7 +36,7 @@ struct ParakeetANEServer: AsyncParsableCommand {
 
         let ffmpegPath = ffmpeg ?? AudioDecoder.locateFFmpeg()
         if ffmpegPath == nil {
-            logger.warning("ffmpeg not found: WebM and Ogg uploads will be rejected")
+            logger.warning("ffmpeg not found: Ogg and unsupported WebM uploads will be rejected")
         }
 
         logger.info("Loading \(model.modelID) (downloads on first run)")

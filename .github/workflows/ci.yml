@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    name: ${{ matrix.os }} / Swift 6.2
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-26]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Check Apple Silicon and toolchain
+        run: |
+          test "$(uname -m)" = arm64
+          swift --version
+      - name: Install audio test dependency
+        run: brew list ffmpeg >/dev/null 2>&1 || brew install ffmpeg
+      - name: Run tests
+        run: swift test --disable-keychain --force-resolved-versions
+      - name: Build release binary
+        run: swift build -c release --disable-keychain --force-resolved-versions
+      - name: Check command-line help
+        run: .build/release/parakeet-ane-server --help

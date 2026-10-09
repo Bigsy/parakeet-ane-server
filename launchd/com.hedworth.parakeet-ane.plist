@@ -10,7 +10,7 @@
 	     OpenWhispr: Transcription > Self-hosted > OpenAI-compatible,
 	     URL http://127.0.0.1:11435/v1 (any model name).
 
-	     `make install` substitutes __HOME__ and installs this file. -->
+	     `make install` sets the paths and installs this file. -->
 	<key>ProgramArguments</key>
 	<array>
 		<string>__HOME__/.local/bin/parakeet-ane-server</string>
@@ -18,8 +18,6 @@
 		<string>unified</string>
 		<string>--port</string>
 		<string>11435</string>
-		<string>--ffmpeg</string>
-		<string>/opt/homebrew/bin/ffmpeg</string>
 	</array>
 
 	<key>RunAtLoad</key>

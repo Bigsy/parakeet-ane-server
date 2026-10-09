@@ -6,6 +6,8 @@ models on the Apple Neural Engine via [FluidAudio](https://github.com/FluidInfer
 Built as a faster local transcription backend for [OpenWhispr](https://openwhispr.com),
 but anything that speaks `POST /v1/audio/transcriptions` can use it.
 
+Experimental software for local dictation on a trusted Mac.
+
 ## Why
 
 OpenWhispr's built-in Parakeet runs on the CPU through sherpa-onnx in a process that
@@ -25,10 +27,14 @@ here and what didn't work.
 
 ## Install
 
-Needs macOS 14+, Apple Silicon and Xcode 16+ (Swift 6). ffmpeg (`brew install ffmpeg`)
+Needs macOS 14+, Apple Silicon and a Swift 6.2+ toolchain (Xcode 26+).
+Check `swift --version`; the pinned dependencies require Swift 6.2.
+ffmpeg (`brew install ffmpeg`)
 is optional: it handles Ogg uploads and any WebM the built-in reader can't.
 
 ```sh
+git clone https://github.com/Bigsy/parakeet-ane-server.git
+cd parakeet-ane-server
 make install
 ```
 
@@ -84,6 +90,20 @@ by Core Audio's Opus decoder. Ogg, and any WebM outside that, go through ffmpeg.
 
 Requests are processed one at a time. Transcript text is not logged unless
 `--log-transcripts` is set; each request logs only audio length, format and timings.
+
+## Local use and privacy
+
+The default listener is `127.0.0.1`. There is no authentication, TLS, rate limiting,
+or bounded request queue. Local processes can submit audio. Changing `--host` to a
+LAN address or `0.0.0.0` lets other reachable clients submit audio as well; use an
+authenticated reverse proxy and access controls if you need remote access.
+
+Uploads are limited to 100 MiB including multipart overhead. Decoded audio is held
+in memory, with no duration limit, so use this server with trusted clients and
+dictation-sized recordings. WAV and other file-based decoding paths temporarily
+write audio to the macOS temporary directory and remove it when decoding finishes.
+Transcription runs locally; model downloads on first use require internet access.
+`--log-transcripts` writes potentially private dictation to the service log.
 
 ## Tuning notes
 
@@ -192,3 +212,16 @@ idle is the main thing left to look at.
 make test    # unit and HTTP tests, using a stub model (no download needed)
 make build
 ```
+
+Install ffmpeg to run the WebM/Opus and Ogg tests; those tests are skipped if it is
+absent. Core Audio's Opus decoder needs access to macOS codec services, so running
+the tests inside a restrictive sandbox may fail. CI runs the full test suite and a
+release build on Apple Silicon macOS 15 and 26 without downloading speech models.
+
+## License and attribution
+
+Server code: [MIT](LICENSE). Models and dependencies retain their upstream licenses.
+The default Parakeet Unified model is CC-BY-4.0. NVIDIA created Parakeet, Fluid
+Inference provides FluidAudio and the CoreML conversions, and Moondream provides
+the Ultra post-training. See [third-party notices](THIRD_PARTY_NOTICES.md) for model
+sources and license information.

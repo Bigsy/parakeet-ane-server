@@ -44,7 +44,11 @@ enum WebMOpus {
         // the output rate directly.
         let scale = 48_000 / AudioDecoder.sampleRate
         let leading = max(preSkip(stream.track.codecPrivate) - coreAudioDecoderDelay, 0) / scale
-        return Array(samples.dropFirst(leading).dropLast(stream.endPadding / scale))
+        let trailing = stream.endPadding / scale
+        guard leading <= samples.count, trailing <= samples.count - leading else {
+            throw DecodeError.malformed("Opus padding exceeds decoded audio")
+        }
+        return Array(samples.dropFirst(leading).dropLast(trailing))
     }
 
     /// Feed `input` through `converter` in one go and collect the mono Float32 output.
@@ -117,9 +121,12 @@ enum WebMOpus {
                 position = dataStart
                 continue
             }
-            guard let size, dataStart + Int(size) <= bytes.count else { break }
-            let data = bytes[dataStart..<dataStart + Int(size)]
-            position = dataStart + Int(size)
+            guard let size, size <= UInt64(bytes.count - dataStart) else {
+                throw DecodeError.malformed("element size exceeds remaining input")
+            }
+            let dataEnd = dataStart + Int(size)
+            let data = bytes[dataStart..<dataEnd]
+            position = dataEnd
 
             switch id {
             case ID.trackNumber where !tracks.isEmpty:
@@ -130,7 +137,11 @@ enum WebMOpus {
             case ID.codecPrivate where !tracks.isEmpty:
                 tracks[tracks.count - 1].codecPrivate = Array(data)
             case ID.channels where !tracks.isEmpty:
-                tracks[tracks.count - 1].channels = Int(readUInt(data))
+                let channels = readUInt(data)
+                guard (1...2).contains(channels) else {
+                    throw DecodeError.unsupported("only mono and stereo Opus are supported")
+                }
+                tracks[tracks.count - 1].channels = Int(channels)
             case ID.simpleBlock, ID.block:
                 let (track, frames) = try parseBlock(data)
                 blocks.append((track, frames, 0))
@@ -146,8 +157,20 @@ enum WebMOpus {
         let opusBlocks = blocks.filter { $0.track == opus.number }
         let packets = opusBlocks.flatMap(\.frames)
         guard !packets.isEmpty else { throw DecodeError.malformed("no Opus packets") }
-        let discard = opusBlocks.map { max($0.discardNanoseconds, 0) }.reduce(0, +)
-        return Stream(track: opus, packets: packets, endPadding: Int(discard * 48_000 / 1_000_000_000))
+        var discard: Int64 = 0
+        for block in opusBlocks {
+            guard block.discardNanoseconds >= 0 else {
+                throw DecodeError.unsupported("negative DiscardPadding")
+            }
+            let (sum, overflow) = discard.addingReportingOverflow(block.discardNanoseconds)
+            guard !overflow else { throw DecodeError.malformed("DiscardPadding overflow") }
+            discard = sum
+        }
+        // Divide the whole seconds first: even Int64.max nanoseconds must not
+        // overflow while being converted to samples.
+        let endPadding = discard / 1_000_000_000 * 48_000
+            + discard % 1_000_000_000 * 48_000 / 1_000_000_000
+        return Stream(track: opus, packets: packets, endPadding: Int(endPadding))
     }
 
     private static func parseBlock(_ data: ArraySlice<UInt8>) throws -> (track: UInt64, frames: [ArraySlice<UInt8>]) {
@@ -161,12 +184,15 @@ enum WebMOpus {
 
         switch (data[flagsIndex] >> 1) & 0b11 {
         case 0:
+            guard !payload.isEmpty else { throw DecodeError.malformed("empty Opus packet") }
             return (trackNumber, [payload])
         case 2:  // Fixed-size lacing: a frame count byte, then equal-sized frames.
             guard let countByte = payload.first else { throw DecodeError.malformed("lacing header") }
             let frames = payload.dropFirst()
             let count = Int(countByte) + 1
-            guard frames.count % count == 0 else { throw DecodeError.malformed("uneven fixed lacing") }
+            guard !frames.isEmpty, frames.count % count == 0 else {
+                throw DecodeError.malformed("empty or uneven fixed lacing")
+            }
             let size = frames.count / count
             return (trackNumber, (0..<count).map { frames.dropFirst($0 * size).prefix(size) })
         default:
@@ -232,20 +258,36 @@ enum WebMOpus {
             guard packet.count >= 2 else { return nil }
             frames = Int(packet[packet.startIndex + 1] & 0x3F)
         }
-        return frames * frameSize
+        let samples = frames * frameSize
+        // RFC 6716 limits each packet to 120 ms of audio.
+        return (1...5_760).contains(samples) ? samples : nil
     }
 
     /// Decode Opus packets straight to 16 kHz mono, untrimmed.
     static func decodeOpus(packets: [ArraySlice<UInt8>], channels: Int) throws -> [Float] {
+        guard let first = packets.first, !first.isEmpty,
+            (1...2).contains(channels), packets.count <= Int(UInt32.max)
+        else { throw DecodeError.malformed("invalid Opus packets or channels") }
         // Core Audio's Opus decoder takes a fixed frames-per-packet, which browsers use.
-        guard let framesPerPacket = samplesPerPacket(packets[0]),
+        guard let framesPerPacket = samplesPerPacket(first),
             packets.allSatisfy({ samplesPerPacket($0) == framesPerPacket })
         else { throw DecodeError.unsupported("variable Opus frame durations") }
+
+        let (framesAt48k, frameOverflow) = packets.count.multipliedReportingOverflow(by: framesPerPacket)
+        guard !frameOverflow, framesAt48k / 3 <= Int(UInt32.max) - 4_096 else {
+            throw DecodeError.unsupported("Opus stream is too long")
+        }
+        let expectedFrames = framesAt48k / 3
+        let maximumPacketSize = packets.map(\.count).max() ?? 0
+        let (bufferBytes, bufferOverflow) = packets.count.multipliedReportingOverflow(by: maximumPacketSize)
+        guard !bufferOverflow, bufferBytes <= Int(UInt32.max) else {
+            throw DecodeError.unsupported("Opus packet buffer is too large")
+        }
 
         var description = AudioStreamBasicDescription(
             mSampleRate: 48_000, mFormatID: kAudioFormatOpus, mFormatFlags: 0, mBytesPerPacket: 0,
             mFramesPerPacket: UInt32(framesPerPacket), mBytesPerFrame: 0,
-            mChannelsPerFrame: UInt32(max(channels, 1)), mBitsPerChannel: 0, mReserved: 0)
+            mChannelsPerFrame: UInt32(channels), mBitsPerChannel: 0, mReserved: 0)
         guard let inputFormat = AVAudioFormat(streamDescription: &description),
             let outputFormat = AVAudioFormat(
                 commonFormat: .pcmFormatFloat32, sampleRate: Double(AudioDecoder.sampleRate), channels: 1,
@@ -256,7 +298,7 @@ enum WebMOpus {
 
         let input = AVAudioCompressedBuffer(
             format: inputFormat, packetCapacity: AVAudioPacketCount(packets.count),
-            maximumPacketSize: packets.map(\.count).max() ?? 0)
+            maximumPacketSize: maximumPacketSize)
         var offset = 0
         for (index, packet) in packets.enumerated() {
             packet.withUnsafeBytes { input.data.advanced(by: offset).copyMemory(from: $0.baseAddress!, byteCount: $0.count) }
@@ -267,7 +309,7 @@ enum WebMOpus {
         input.packetCount = AVAudioPacketCount(packets.count)
         input.byteLength = UInt32(offset)
         return try convertAll(
-            converter, input: input, expectedFrames: packets.count * framesPerPacket * AudioDecoder.sampleRate / 48_000)
+            converter, input: input, expectedFrames: expectedFrames)
     }
 }
 
