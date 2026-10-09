@@ -1,0 +1,3 @@
+{"mode":"batch","baselineBytes":5489192,"warmedBytes":69190304}
+{"mode":"streaming","baselineBytes":5505576,"warmedBytes":52544184}
+{"mode":"dual","baselineBytes":5489168,"warmedBytes":94372584}

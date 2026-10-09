@@ -1,6 +1,6 @@
 # Third-party software and models
 
-The server code is licensed under [MIT](LICENSE). Dependencies and model weights
+The library and server code are licensed under [MIT](LICENSE). Dependencies and model weights
 retain their upstream licenses; the server's license does not relicense them.
 
 ## Direct dependencies
@@ -10,6 +10,7 @@ retain their upstream licenses; the server's license does not relicense them.
   Its bundled components have [additional notices](https://github.com/FluidInference/FluidAudio/tree/0.17.7/ThirdPartyLicenses).
 - [Hummingbird](https://github.com/hummingbird-project/hummingbird/tree/2.27.0): Apache-2.0.
 - [MultipartKit](https://github.com/vapor/multipart-kit/tree/4.7.1): MIT.
+- [swift-log](https://github.com/apple/swift-log/tree/1.16.1): Apache-2.0.
 - [Swift Argument Parser](https://github.com/apple/swift-argument-parser/tree/1.8.2): Apache-2.0.
 
 Swift Package Manager fetches these dependencies from their upstream repositories,

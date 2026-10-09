@@ -1,7 +1,7 @@
 # ParakeetCore library and standalone server implementation plan
 
-Updated: 9 October 2026. Status: M0–M3 implemented; batch release validation complete.
-Streaming spike measured; session implementation follows the batch release.
+Updated: 9 October 2026. Status: M0–M3 and M5–M6 implemented; batch and streaming candidates validated.
+M4/M7 publication gates are pending the remaining commit/tag authorization.
 
 Implementation evidence (9 October 2026): baseline 31 tests and release build passed;
 core/HTTP suites, public consumer, clean Git-revision consumer and macOS app resource
@@ -10,10 +10,12 @@ seven synthetic fixtures. The isolated 25-second repeat shows no material batch
 regression. See `bench/results/2026-10-09.md` and retained raw observations. First
 assembled-server preparation took 24.40 seconds on this host. The streaming spike
 covers 630 observations across three chunk sizes; the long fixture adds a final
-period compared with batch. Model weights remain outside source control.
+period compared with batch. Model weights remain outside source control. The public streaming API adds 630
+observations and six paced runs; warmed batch/streaming/dual residency and CPU/wakeups
+are recorded in the same report. See `docs/WHISPR_LITE.md` for the app handoff.
 
-Release/streaming milestones remain unchecked until their respective tag/session
-gates are completed. Extended idle/energy and broader accuracy benchmarks remain
+Batch commit `ef0a8eb` is on main and passed both macOS CI jobs. The batch-only
+cancellation admission fix and streaming candidate remain local until publication. Extended idle/energy and broader accuracy benchmarks remain
 opt-in; batch is the conservative first consumer default.
 
 Repository: `https://github.com/Bigsy/parakeet-ane-server`.
@@ -135,7 +137,7 @@ separately from moving files. Do not change valid JSON responses incidentally.
 - [x] Freeze HTTP response fixtures, decoder/sample-count behavior and model IDs.
 - [x] Save a small synthetic speech corpus and baseline batch outputs on the current
   model. Keep optional model inference benchmarks separate from ordinary tests.
-- [ ] Record release-build timing for direct existing `TranscriptionService` calls and
+- [x] Record release-build timing for direct existing `TranscriptionService` calls and
   HTTP uploads. Use identical PCM/model state for comparisons rather than comparing
   unrelated compressed recordings or cold/warm runs.
 
@@ -360,15 +362,15 @@ The pinned Unified manager supplies `appendAudio(AVAudioPCMBuffer)`,
 The default context has about **2.08 seconds of theoretical partial-transcript lag** and
 re-encodes a rolling audio window. Measure final flush cost, not just partial latency.
 
-- [ ] Benchmark the pinned streaming manager on the same synthetic audio as batch.
+- [x] Benchmark the pinned streaming manager on the same synthetic audio as batch.
   Check residual work at release, accuracy/disagreement, short utterances and long pauses.
-- [ ] Verify the appropriate streaming encoder files and compute-unit/precision settings.
+- [x] Verify the appropriate streaming encoder files and compute-unit/precision settings.
   The streaming encoder can be distinct from the batch one even when decoder files overlap.
-- [ ] Inspect `appendAudio`'s conversion path before wrapping it. Construct a correctly
+- [x] Inspect `appendAudio`'s conversion path before wrapping it. Construct a correctly
   formatted 16 kHz mono buffer, avoid double resampling and measure copying/conversion cost.
   If an upstream raw-sample overload would materially help, propose a narrow upstream
   change; do not fork or rewrite FluidAudio preemptively.
-- [ ] Check model minimum-input/flush behavior independently of batch padding. Do not
+- [x] Check model minimum-input/flush behavior independently of batch padding. Do not
   blindly pad each streaming chunk to one second or alter its sample timeline.
 
 ### 8.2 — Session API and ownership
@@ -382,57 +384,59 @@ StreamingSession
   updates: AsyncThrowingStream<TranscriptUpdate, Error>
   finish() async throws -> TranscriptionResult
   cancel() async
+  waitForSettlement() async
 
 TranscriptUpdate
-  sessionID, revision, fullTranscript, processedAudioPosition
+  sessionID, revision, fullTranscript, receivedAudioPosition
+  processedAudioPosition is nil (not exposed upstream)
 ```
 
-- [ ] Give each session exclusive ownership of its mutable manager. An app can have one
+- [x] Give each session exclusive ownership of its mutable manager. An app can have one
   recording session; starting another while one is active returns a clear busy error.
-- [ ] Accept PCM chunks with explicit contiguous sample offsets. Reject missing, repeated,
+- [x] Accept PCM chunks with explicit contiguous sample offsets. Reject missing, repeated,
   overlapping or out-of-order chunks before mutating the model timeline.
-- [ ] Use one ordered processing queue for append/process/finish/cancel; actor reentrancy
+- [x] Use one ordered processing queue for append/process/finish/cancel; actor reentrancy
   must not allow finish/reset to race an awaited inference step.
-- [ ] Document that append may suspend for backpressure and is unsuitable for a real-time
+- [x] Document that append may suspend for backpressure and is unsuitable for a real-time
   microphone callback. The app sends copied/owned buffers from its capture worker.
-- [ ] Bound frame/chunk size, queued samples and total session duration. Initial app-oriented
+- [x] Bound frame/chunk size, queued samples and total session duration. Initial app-oriented
   session limit is 120 seconds; the library exposes configuration instead of owning the
   app's hotkey safety timer. Overflow produces an error, never silent sample loss.
-- [ ] Use small transport-independent input chunks as the caller prefers, initially
+- [x] Use small transport-independent input chunks as the caller prefers, initially
   20–40 ms in the app. These do not change the model's much larger inference windows.
-- [ ] Process buffered audio as complete windows become available. Coalesce overlapping
+- [x] Process buffered audio as complete windows become available. Coalesce overlapping
   processing requests and do not run inference once per tiny chunk unnecessarily.
-- [ ] Emit revisioned full partial-transcript snapshots. Use a bounded newest-value
+- [x] Emit revisioned full partial-transcript snapshots. Use a bounded newest-value
   buffer so a slow UI/prefill consumer does not accumulate an unbounded transcript history.
   Partial updates are observations, not committed text for insertion.
-- [ ] Make `finish()` the authoritative final-result operation: drain accepted audio in
+- [x] Make `finish()` the authoritative final-result operation: drain accepted audio in
   order, flush the residual window once, return one result and reset/release ownership.
-- [ ] Define repeat-finish behavior consistently (same cached final result or typed
+- [x] Define repeat-finish behavior consistently (same cached final result or typed
   already-finished error). It must never re-run inference or deliver an unrelated session.
-- [ ] Make cancel idempotent. End the update stream, discard provisional results and reset
+- [x] Make cancel idempotent. End the update stream, discard provisional results and reset
   once running model work settles safely. No partial callback may leak into the next session.
-- [ ] Define the race between finish and cancel. If cancel wins before successful final
+- [x] Define the race between finish and cancel. If cancel wins before successful final
   completion, suppress the final result; a published result cannot be retroactively undone.
-- [ ] Provide explicit shutdown for abandoned sessions. Stream-consumer termination alone
+- [x] Provide explicit shutdown for abandoned sessions. Stream-consumer termination alone
   is not sufficient evidence that the caller abandoned the recording; support observation
   cancellation separately from session cancellation.
-- [ ] Preserve context across silent pauses. Do not split dictation into independent VAD
+- [x] Preserve context across silent pauses. Do not split dictation into independent VAD
   utterances, which can lose short phrases and context.
 
 ### 8.3 — Memory, fallback and final text
 
-- [ ] Measure batch-only, streaming-only and dual-manager residency. Default to one selected
+- [x] Measure batch-only, streaming-only and dual-manager residency. Default to one selected
   mode rather than always retaining two full encoder stacks. Offer dual residency only
   if measured fallback latency and memory cost justify it.
-- [ ] Document whether changing modes requires unload/load/warm-up. Do not promise an
+- [x] Document whether changing modes requires unload/load/warm-up. Do not promise an
   immediate batch fallback from a streaming-only prepared engine.
-- [ ] Keep optional complete-audio retention in the **consumer**, not hidden in the
+- [x] Keep optional complete-audio retention in the **consumer**, not hidden in the
   streaming library. whispr-lite may retain its 120-second capped recording for fallback.
-- [ ] If streaming fails, the consumer must finish/cancel and settle model ownership
+- [x] If streaming fails, the consumer must finish/cancel and settle model ownership
   before replaying audio through batch. It suppresses duplicate late final results.
-- [ ] Leave LLM cleanup and prompt prefill outside the library. whispr-lite can consume
+- [x] Leave LLM cleanup and prompt prefill outside the library. whispr-lite can consume
   changed partials to prefill its one llama-server slot and generate only after final ASR.
-- [ ] Keep the model switchable internally, but ship Unified first. Nemotron/Ultra experiments
+- [x] Keep the model switchable internally, but ship Unified first. Nemotron/Ultra experiments
   need reviewed accuracy and resource evidence and a separate release decision.
 
 **Exit:** repeated sessions preserve sample order and independent decoder state;
@@ -470,17 +474,17 @@ use the original endpoints through OpenWhispr without installing whispr-lite.
 
 ### Core tests without model downloads
 
-- [ ] PCM contract: empty, very short, exact minimum, duration cap, invalid/nonfinite
+- [x] PCM contract: empty, very short, exact minimum, duration cap, invalid/nonfinite
   samples, actual duration and preserved normalization.
-- [ ] Preparation: repeated/concurrent prepare, progress order, missing offline cache,
+- [x] Preparation: repeated/concurrent prepare, progress order, missing offline cache,
   failed download/load/warm-up, cancelled preparation and recovery on a later attempt.
-- [ ] Queue: FIFO, capacity/retained-sample limits, cancellation before admission, while
+- [x] Queue: FIFO, capacity/retained-sample limits, cancellation before admission, while
   queued and during fake nonpreemptible inference, failure and subsequent progress.
-- [ ] Ownership: transcribe/startStreaming/unload conflicts; late completion cannot
+- [x] Ownership: transcribe/startStreaming/unload conflicts; late completion cannot
   release another request's permit. Use controllable fake model barriers, not timing sleeps.
-- [ ] Streaming: sample offset errors, partial revision order, slow consumer coalescing,
+- [x] Streaming: sample offset errors, partial revision order, slow consumer coalescing,
   finish/cancel races, finish once, repeated cancel, empty recording, limits and reset.
-- [ ] Public API: examples compile with ordinary imports, strict concurrency enabled,
+- [x] Public API: examples compile with ordinary imports, strict concurrency enabled,
   without `@testable`, Hummingbird, server startup or microphone permission.
 
 Keep test seams private/internal where possible. Server tests can inject a small
@@ -489,46 +493,47 @@ Maintain only tests that verify meaningful semantics and failure boundaries.
 
 ### Existing server regression coverage
 
-- [ ] Keep WAV/other supported decode tests and short-upload padding tests.
-- [ ] Keep JSON/text/verbose_json, missing file, malformed multipart, unsupported format,
+- [x] Keep WAV/other supported decode tests and short-upload padding tests.
+- [x] Keep JSON/text/verbose_json, missing file, malformed multipart, unsupported format,
   model list and health behavior checks.
-- [ ] Keep WebM metadata/padding/overflow/empty-packet regression tests, ffmpeg noisy-pipe
+- [x] Keep WebM metadata/padding/overflow/empty-packet regression tests, ffmpeg noisy-pipe
   test and the sample-exact alignment test against ffmpeg where supported.
-- [ ] Add queue-full/cancellation/error-mapping tests for any deliberately new behavior.
-- [ ] Run actual CLI help and standalone startup against a prepared model as an optional
+- [x] Add queue-full/cancellation/error-mapping tests for any deliberately new behavior.
+- [x] Run actual CLI help and standalone startup against a prepared model as an optional
   smoke test. Ordinary CI must not require model downloads.
 
 ### Separate consumer and resource packaging
 
-- [ ] Add `Examples/CoreConsumer` as a separate package that depends on the public product
+- [x] Add `Examples/CoreConsumer` as a separate package that depends on the public product
   using a local path during development. It must not import internal server targets.
-- [ ] Add a clean temporary consumer build by Git URL plus the exact candidate release
+- [x] Add a clean temporary consumer build by Git URL plus the exact candidate release
   revision/tag. A package's own tests are insufficient proof of external consumption.
-- [ ] Verify dependency/module visibility and the built executable's linkage. Root-level
+- [x] Verify dependency/module visibility and the built executable's linkage. Root-level
   resolution may fetch server packages, but the app must not require an HTTP server process.
-- [ ] Verify FluidAudio's resource bundles/binary dependencies are included in a real app
+- [x] Verify FluidAudio's resource bundles/binary dependencies are included in a real app
   assembly and standalone executable distribution. A library that builds but cannot find
   `Bundle.module` resources at runtime is not ready for whispr-lite.
-- [ ] Inspect optional traits in FluidAudio's version-specific Swift 6.2 manifest. Disable
+- [x] Inspect optional traits in FluidAudio's version-specific Swift 6.2 manifest. Disable
   unrelated optional components only when verified unnecessary for batch/streaming ASR;
   avoid trading smaller downloads for changed transcription behavior.
 
 ### Optional model-backed benchmarks
 
-- [ ] Preserve a synthetic corpus covering short phrases, 8- and 25-second recordings,
+- [x] Preserve a synthetic corpus covering short phrases, 8- and 25-second recordings,
   sentence endings, soft speech, pauses and corrections. Record model/configuration identity.
-- [ ] Run release builds. Compare pre-refactor versus extracted-core batch output, then
+- [x] Run release builds. Compare pre-refactor versus extracted-core batch output, then
   core versus HTTP from identical PCM. Separate encoding/decode/transport/queue/inference.
 - [ ] Interleave configurations and report raw samples plus median/p90/p95, at least
   30 warm observations per condition. Report startup and 90-second/5-minute/25-minute
-  idle cases separately rather than averaging them into the warm result.
-- [ ] Test streaming from different chunk sizes and final boundaries. Compare final
+  idle cases separately rather than averaging them into the warm result. Warm runs
+  are complete; the extended idle series remains opt-in and is not claimed complete.
+- [x] Test streaming from different chunk sizes and final boundaries. Compare final
   results to batch and reviewed fixtures; disagreement alone is not ground-truth WER.
-- [ ] Measure startup, final flush, physical footprint, dual residency, CPU/wakeups and
+- [x] Measure startup, final flush, physical footprint, dual residency, CPU/wakeups and
   sustained streaming compute. A faster release can still cost more energy while speaking.
-- [ ] Require no material batch inference regression. Start with a 5 ms or 5% investigation
+- [x] Require no material batch inference regression. Start with a 5 ms or 5% investigation
   threshold for extraction overhead, using enough repetitions to distinguish it from noise.
-- [ ] Preserve the README's historical measurements; add dated reports for new results.
+- [x] Preserve the README's historical measurements; add dated reports for new results.
   Do not claim model speedups from merely avoiding HTTP or describe partial lag as final latency.
 
 **Exit:** core/HTTP tests, external consumer builds and runtime resources pass;
@@ -538,29 +543,29 @@ model-backed parity and performance evidence are recorded before choosing the ap
 
 ### CI and developer commands
 
-- [ ] Extend the existing Apple Silicon macOS 15/26 CI and Swift 6.2 checks; preserve
+- [x] Extend the existing Apple Silicon macOS 15/26 CI and Swift 6.2 checks; preserve
   its full decoder tests and release executable build.
-- [ ] Run core/server tests and compile the separate library consumer. If current runner
+- [x] Run core/server tests and compile the separate library consumer. If current runner
   images/toolchain paths change, fix that explicitly rather than weakening the checks.
-- [ ] Keep ordinary CI independent of speech-model downloads and microphone permissions.
+- [x] Keep ordinary CI independent of speech-model downloads and microphone permissions.
   Make model parity/performance runs opt-in with documented cache preparation.
-- [ ] Keep `make build` building the standalone release executable and `make test` running
+- [x] Keep `make build` building the standalone release executable and `make test` running
   the relevant suites. Add focused core/consumer/benchmark commands where they help.
-- [ ] If distributing compiled server releases, inspect dynamic-library and resource
+- [x] If distributing compiled server releases, inspect dynamic-library and resource
   requirements and assemble a versioned arm64 archive containing required bundles/notices.
   A copied executable alone is sufficient only after that runtime check passes.
 
 ### Documentation
 
-- [ ] Add separate README sections for standalone installation and library integration.
-- [ ] Document supported tools/macOS/architecture, PCM format, preparation/cache policy,
+- [x] Add separate README sections for standalone installation and library integration.
+- [x] Document supported tools/macOS/architecture, PCM format, preparation/cache policy,
   threading/backpressure, cancellation limits, streaming lifecycle and limits.
-- [ ] Add runnable batch and streaming consumer examples with expected error handling.
-- [ ] Explain that first preparation may download and compile model assets; subsequent
+- [x] Add runnable batch and streaming consumer examples with expected error handling.
+- [x] Explain that first preparation may download and compile model assets; subsequent
   use can operate offline from a valid cache.
-- [ ] Explain that models are not bundled with source releases and that an ASR package
+- [x] Explain that models are not bundled with source releases and that an ASR package
   does not request a microphone permission, manage hotkeys or paste text.
-- [ ] Preserve/update `LICENSE` and `THIRD_PARTY_NOTICES.md`, including explicit swift-log
+- [x] Preserve/update `LICENSE` and `THIRD_PARTY_NOTICES.md`, including explicit swift-log
   and any redistributed binary/resource notices. Keep model license/attribution distinct
   from the repository's MIT license; do not invent relicensing rights.
 
@@ -574,16 +579,16 @@ to upload the code to a central SwiftPM registry. Package indexing/discovery is 
 - [ ] Add streaming in a subsequent tagged release, provisionally `v0.2.0`, with clear
   pre-1.0 API compatibility notes. Do not wait for every streaming optimization to make
   the batch library available to whispr-lite.
-- [ ] Pin consumers to the tested exact tag or commit and commit their resolved dependency
-  state. Review upstream upgrades separately from the extraction.
-- [ ] A private repository is usable with authenticated Git access by builders; a public
+- [x] Document exact tag/commit pinning and resolved dependency ownership in the app
+  handoff; the sibling app migration stays in its repository. Review upstream upgrades separately from the extraction.
+- [x] A private repository is usable with authenticated Git access by builders; a public
   repository allows ordinary URL-based resolution. Do not change visibility as part of
   the refactor without an explicit repository-owner decision.
 - [ ] Test the candidate revision from a clean consumer clone/cache, and test the actual
   tag after publication. GitHub release notes should state library and server behavior.
-- [ ] Retain the independently buildable server at every tagged library release.
-- [ ] Publishing, tagging and pushing happen during implementation/release work; this
-  planning task does not perform those actions.
+- [x] Retain the independently buildable server at every tagged library release.
+- [ ] Publish the verified candidates/tags/releases to this existing GitHub repository
+  after authorization for their concrete payloads.
 
 Example consumer manifest fragment **after** the corresponding tag has been released:
 
@@ -623,20 +628,20 @@ default path should be direct library calls, with existing HTTP batch as an opti
 | Standalone HTTP/decoding/CLI | Media pause leases, focus/clipboard handling and text insertion |
 | Public package API, tests and release tags | App bundling, signing, preferences and user-facing recovery |
 
-- [ ] Give the app the exact package version, public examples, preparation states,
+- [x] Give the app the exact package version, public examples, preparation states,
   limits/error categories, PCM contract and streaming/fallback behavior.
-- [ ] App capture produces 16 kHz mono Float32 samples. Batch passes one owned buffer;
+- [x] App capture produces 16 kHz mono Float32 samples. Batch passes one owned buffer;
   streaming passes contiguous chunks through a serial sender outside the audio callback.
-- [ ] Prepare the selected ASR mode before recording is enabled. The app should expose
+- [x] Prepare the selected ASR mode before recording is enabled. The app should expose
   first-use model download/load status, not hide it in the first dictation.
-- [ ] Avoid loading the same ASR model in both the app and standalone server accidentally.
+- [x] Avoid loading the same ASR model in both the app and standalone server accidentally.
   Keep service changes explicit in the app's migration setup; the core library never
   stops another process's LaunchAgent.
-- [ ] Keep llama-server separate initially, using the existing tuned Gemma configuration.
+- [x] Keep llama-server separate initially, using the existing tuned Gemma configuration.
   The app owns one cleanup/prefill slot; ASR does not need to know about cleanup prompts.
-- [ ] Do not add a WebSocket or raw-PCM HTTP endpoint solely for the app. Add them later
+- [x] Do not add a WebSocket or raw-PCM HTTP endpoint solely for the app. Add them later
   only if an actual external-server consumer requires streaming/raw PCM transport.
-- [ ] Keep direct-library versus HTTP fallback selectable during rollout. Reverting to
+- [x] Keep direct-library versus HTTP fallback selectable during rollout. Reverting to
   the server should not require copying source, deleting model caches or retuning models.
 
 ## 13. Delivery order and definition of done
@@ -659,12 +664,12 @@ The work is complete when:
 
 - [ ] Another macOS package can resolve a tagged dependency and call `ParakeetCore`
   in-process with 16 kHz PCM, without copied ASR source or an HTTP server.
-- [ ] Model preparation/readiness and cancellation are explicit, tested and usable by a GUI app.
-- [ ] Streaming supports sequential repeated recordings with bounded state and one
+- [x] Model preparation/readiness and cancellation are explicit, tested and usable by a GUI app.
+- [x] Streaming supports sequential repeated recordings with bounded state and one
   final result, and has measured quality, final-flush latency and memory behavior.
-- [ ] The standalone executable still builds/installs independently and serves the
+- [x] The standalone executable still builds/installs independently and serves the
   existing OpenWhispr-compatible batch API with current decoder regression protection.
-- [ ] CI, consumer examples, packaging/resources, documentation, licenses and dependency
+- [x] CI, consumer examples, packaging/resources, documentation, licenses and dependency
   version information are sufficient for a fresh developer checkout to reproduce the result.
 
 ## 14. Primary references

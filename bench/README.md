@@ -13,6 +13,10 @@ bench/.build/release/Benchmark prepare .build/bench-models unused
 python3 bench/run-batch.py
 bench/.build/release/Benchmark prepare-streaming .build/bench-models unused
 python3 bench/run-streaming.py
+python3 bench/run-sessions.py
+# Each mode in a separate process, after actual inference on the same PCM:
+bench/.build/release/Benchmark residency .build/bench-models .build/bench-corpus/twenty-five.f32le batch
+# Repeat with streaming and dual; save JSON to results/warmed-residency.jsonl.
 make build
 ./scripts/package-server.sh batch-candidate
 python3 bench/run-http.py
@@ -28,8 +32,8 @@ Model assets and generated speech stay in ignored `.build/` directories.
 
 Upstream streaming uses a separate encoder with `[70,13,13]` context, int8 CPU+ANE,
 and no VAD splitting. The spike runs 20 ms, 40 ms and one-second chunks, drains token
-observations and measures residual final flush separately. This is not a real-time
-microphone capture benchmark. Keep batch as the initial app default until broader
+observations and measures residual final flush separately. The public-session benchmark also records three paced 8/25-second repetitions
+with CPU/wakeup deltas; it does not exercise a physical microphone or measure battery energy. Keep batch as the initial app default until broader
 accuracy and sustained compute/energy measurements justify a switch. Cache sharing
 does not imply model execution/residency sharing.
 

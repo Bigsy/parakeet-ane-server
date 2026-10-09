@@ -106,4 +106,13 @@ public struct TranscriptionResult: Sendable, Equatable {
     public let queueDuration: Duration
     public let inferenceDuration: Duration
     public let totalDuration: Duration
+    /// Streaming residual flush only; nil for batch.
+    public let finalizationDuration: Duration?
+
+    init(text: String, modelID: String, actualAudioDuration: Double, queueDuration: Duration,
+         inferenceDuration: Duration, totalDuration: Duration, finalizationDuration: Duration? = nil) {
+        self.text = text; self.modelID = modelID; self.actualAudioDuration = actualAudioDuration
+        self.queueDuration = queueDuration; self.inferenceDuration = inferenceDuration
+        self.totalDuration = totalDuration; self.finalizationDuration = finalizationDuration
+    }
 }

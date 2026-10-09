@@ -1,5 +1,30 @@
 # Releases
 
+## v0.2.0 — Unified streaming sessions
+
+Adds ordered in-process Unified streaming with contiguous PCM offsets, bounded
+chunks/queue/session duration, revisioned newest-value full partial snapshots and
+one authoritative final result. Finish drains accepted audio, flushes once and resets;
+repeat finish returns the same result. Cancellation/deadlines discard provisional
+results and retain model ownership until reset settles. Observer cancellation is
+independent of recording cancellation. Explicit session/engine cancellation recovers
+abandoned recordings, and a reset failure makes the engine unready.
+
+An engine prepares only its selected mode. Batch fallback requires settlement,
+unload and a separately prepared batch engine. Public types hide FluidAudio and
+remain Swift 6 Sendable. New `finalizationDuration` is optional (nil for batch);
+`receivedAudioPosition` reports completed input and `processedAudioPosition` stays
+nil rather than inventing an upstream decoded frontier. This is a pre-1.0 additive
+API release; pin the exact version and review later upgrades.
+
+Includes public streaming examples, deterministic ownership/cancellation tests,
+630 public-session observations and paced CPU/wakeup measurements. All words match
+batch on seven synthetic fixtures, with a final period added on the long fixture.
+Streaming final flush is much shorter than its cumulative work; batch remains the
+initial app default. Broader accuracy, energy and long-idle measurements remain
+opt-in. Standalone HTTP behavior and all four batch models remain available.
+
+
 ## v0.1.0 — ParakeetCore batch library
 
 Adds the `ParakeetCore` SwiftPM product for direct 16 kHz mono Float32 transcription

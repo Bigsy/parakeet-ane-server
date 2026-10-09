@@ -8,6 +8,14 @@ public actor ParakeetEngine {
     public private(set) var state: EngineState = .unloaded
     private var model: (any SpeechModel)?
     private let loader: ModelLoader
+    private let streamingLoader: StreamingLoader
+    private var streamingModel: (any StreamingModel)?
+    private var streamingSession: StreamingSession?
+    private var streamingSessionID: UUID?
+    public var isBusy: Bool { state == .preparing || active != nil || !queue.isEmpty || streamingSessionID != nil }
+    public nonisolated var supportsStreaming: Bool { configuration.model.supportsStreaming }
+
+    typealias StreamingLoader = @Sendable (EngineConfiguration, @escaping @Sendable (PreparationProgress) -> Void) async throws -> any StreamingModel
     private var queue: [Job] = []
     private var queuedSamples = 0
     private var active: Job?
@@ -20,16 +28,30 @@ public actor ParakeetEngine {
         self.configuration = configuration
         self.modelID = configuration.model.modelID
         self.loader = loadSpeechModel
+        self.streamingLoader = loadStreamingModel
     }
 
     init(configuration: EngineConfiguration = .init(), loader: @escaping ModelLoader) {
         self.configuration = configuration; self.modelID = configuration.model.modelID; self.loader = loader
+        self.streamingLoader = loadStreamingModel
     }
 
     /// Test seam for the server adapter; no bypass is exported from the library.
     init(configuration: EngineConfiguration = .init(), preparedModel: any SpeechModel) {
         self.configuration = configuration; self.modelID = preparedModel.id; self.loader = loadSpeechModel
+        self.streamingLoader = loadStreamingModel
         self.model = preparedModel; self.state = .ready
+    }
+
+    init(configuration: EngineConfiguration, streamingLoader: @escaping StreamingLoader) {
+        self.configuration = configuration; self.modelID = configuration.model.modelID
+        self.loader = loadSpeechModel; self.streamingLoader = streamingLoader
+    }
+
+    init(configuration: EngineConfiguration = .init(mode: .streaming), preparedStreamingModel: any StreamingModel) {
+        self.configuration = configuration; self.modelID = configuration.model.modelID
+        self.loader = loadSpeechModel; self.streamingLoader = loadStreamingModel
+        self.streamingModel = preparedStreamingModel; self.state = .ready
     }
 
     /// Repeated successful prepare is a no-op; concurrent prepare returns busy.
@@ -41,6 +63,23 @@ public actor ParakeetEngine {
         guard state != .preparing else { throw ParakeetError.busy }
         state = .preparing
         do {
+            if configuration.mode == .streaming {
+                let loaded = try await streamingLoader(configuration, progress)
+                try checkCancellation()
+                progress(.init(stage: .warmingUp))
+                do {
+                    try await loaded.append([Float](repeating: 0, count: PCM16kMono.sampleRate))
+                    _ = try await loaded.finish()
+                    try await loaded.reset()
+                } catch {
+                    if Task.isCancelled || error is CancellationError { throw ParakeetError.cancelled }
+                    throw ParakeetError.preparationFailed
+                }
+                try checkCancellation()
+                streamingModel = loaded; state = .ready
+                progress(.init(stage: .ready))
+                return
+            }
             let loaded = try await loader(configuration, progress)
             try checkCancellation()
             progress(.init(stage: .warmingUp))
@@ -54,7 +93,7 @@ public actor ParakeetEngine {
             model = loaded; state = .ready
             progress(.init(stage: .ready))
         } catch {
-            model = nil; state = .failed
+            model = nil; streamingModel = nil; state = .failed
             if Task.isCancelled || error is CancellationError { throw ParakeetError.cancelled }
             throw error as? ParakeetError ?? .preparationFailed
         }
@@ -63,15 +102,40 @@ public actor ParakeetEngine {
     /// Rejects active/queued work rather than suspending indefinitely on nonpreemptible inference.
     /// Releasing model references does not guarantee immediate OS memory reclamation.
     public func unload() throws {
-        guard state != .preparing, active == nil, queue.isEmpty else { throw ParakeetError.busy }
-        model = nil; state = .unloaded
+        guard !isBusy else { throw ParakeetError.busy }
+        model = nil; streamingModel = nil; state = .unloaded
+    }
+
+    public func startStreaming() throws -> StreamingSession {
+        try checkCancellation()
+        try configuration.validate()
+        guard state == .ready else { throw ParakeetError.notReady }
+        guard configuration.mode == .streaming, let streamingModel else { throw ParakeetError.unsupportedMode }
+        guard !isBusy else { throw ParakeetError.busy }
+        let id = UUID()
+        let session = StreamingSession(id: id, model: streamingModel, configuration: configuration) { reusable in
+            await self.releaseSession(id, reusable: reusable)
+        }
+        streamingSessionID = id; streamingSession = session
+        return session
+    }
+
+    /// Explicit recovery for an abandoned session. Prompt cancellation; unload remains busy
+    /// until nonpreemptible work and reset settle. No observation-stream cancellation is inferred.
+    public func cancelStreaming() async { await streamingSession?.cancel() }
+
+    private func releaseSession(_ id: UUID, reusable: Bool) {
+        guard streamingSessionID == id else { return }
+        streamingSession = nil; streamingSessionID = nil
+        if !reusable { streamingModel = nil; state = .failed }
     }
 
     public func transcribe(_ audio: PCM16kMono) async throws -> TranscriptionResult {
         try checkCancellation()
         try configuration.validate()
-        guard state == .ready, model != nil else { throw ParakeetError.notReady }
+        guard state == .ready else { throw ParakeetError.notReady }
         guard configuration.mode == .batch else { throw ParakeetError.unsupportedMode }
+        guard model != nil else { throw ParakeetError.notReady }
         guard audio.samples.count <= configuration.maximumAudioSamples else { throw ParakeetError.audioLimitExceeded }
         let start = ContinuousClock.now
         if audio.samples.isEmpty {
@@ -79,10 +143,11 @@ public actor ParakeetEngine {
                          queueDuration: .zero, inferenceDuration: .zero, totalDuration: start.duration(to: .now))
         }
         let id = UUID()
+        let cancellation = CancellationFlag()
         let result: TranscriptionResult = try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 // The caller can be cancelled before the handler's actor message arrives.
-                guard !Task.isCancelled else {
+                guard !Task.isCancelled, !cancellation.isCancelled else {
                     continuation.resume(throwing: ParakeetError.cancelled); return
                 }
                 if active != nil {
@@ -90,7 +155,7 @@ public actor ParakeetEngine {
                           audio.samples.count <= configuration.maximumQueuedSamples - queuedSamples
                     else { continuation.resume(throwing: ParakeetError.queueFull); return }
                 }
-                var job = Job(id: id, audio: audio, admitted: start, continuation: continuation)
+                var job = Job(id: id, audio: audio, admitted: start, cancellation: cancellation, continuation: continuation)
                 if active != nil, let timeout = configuration.queueWaitTimeout {
                     job.deadline = Task {
                         do { try await Task.sleep(for: timeout) } catch { return }
@@ -101,6 +166,7 @@ public actor ParakeetEngine {
                 startNext()
             }
         } onCancel: {
+            cancellation.cancel()
             Task { await self.cancel(id, reason: .cancelled) }
         }
         try checkCancellation()
@@ -111,6 +177,7 @@ public actor ParakeetEngine {
         let id: UUID
         let audio: PCM16kMono
         let admitted: ContinuousClock.Instant
+        let cancellation: CancellationFlag
         var continuation: CheckedContinuation<TranscriptionResult, any Error>?
         var deadline: Task<Void, Never>?
     }
@@ -132,11 +199,14 @@ public actor ParakeetEngine {
             let outcome: Result<String, any Error>
             do {
                 try Task.checkCancellation()
+                guard !job.cancellation.isCancelled else { throw CancellationError() }
                 let samples = job.audio.samples
                 let padded = samples.count < PCM16kMono.sampleRate
                     ? samples + [Float](repeating: 0, count: PCM16kMono.sampleRate - samples.count) : samples
+                guard !job.cancellation.isCancelled else { throw CancellationError() }
                 let text = try await model.transcribe(padded)
                 try Task.checkCancellation()
+                guard !job.cancellation.isCancelled else { throw CancellationError() }
                 outcome = .success(text.trimmingCharacters(in: .whitespacesAndNewlines))
             } catch { outcome = .failure(error) }
             self.complete(job.id, began: began, outcome: outcome)

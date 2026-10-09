@@ -22,6 +22,9 @@ struct Observation: Codable {
             print("Benchmark baseline|core|prepare cache-root fixture.f32le [repetitions]")
             return
         }
+        if args[0] == "session" || args[0] == "session-realtime" {
+            try await sessionBenchmark(args: args); return
+        }
         if args[0] == "residency" { try await residency(args: args); return }
         if args[0] == "streaming" || args[0] == "prepare-streaming" {
             try await streamingSpike(args: args); return

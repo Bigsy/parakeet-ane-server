@@ -81,18 +81,41 @@ func physicalFootprint() -> UInt64 {
     return result == KERN_SUCCESS ? info.phys_footprint : 0
 }
 
+/// Run each mode in its own process; warm real inference before reading footprint.
 func residency(args: [String]) async throws {
     let directory = URL(fileURLWithPath: args[1]).appendingPathComponent(Repo.parakeetUnified.folderName)
+    let mode = args[3]
+    let data = try Data(contentsOf: URL(fileURLWithPath: args[2]))
+    let samples = data.withUnsafeBytes { raw in
+        stride(from: 0, to: raw.count, by: 4).map { Float(bitPattern: UInt32(littleEndian: raw.loadUnaligned(fromByteOffset: $0, as: UInt32.self))) }
+    }
     let baseline = physicalFootprint()
-    let batch = UnifiedAsrManager()
-    try await batch.loadModels(from: directory)
-    _ = try await batch.transcribe([Float](repeating: 0, count: 16000))
-    let batchBytes = physicalFootprint()
-    let stream = StreamingUnifiedAsrManager()
-    try await stream.loadModels(from: directory)
-    let dualBytes = physicalFootprint()
-    await batch.cleanup()
-    let streamingBytes = physicalFootprint()
-    print("{\"baselineBytes\":\(baseline),\"batchBytes\":\(batchBytes),\"dualBytes\":\(dualBytes),\"streamingAfterBatchCleanupBytes\":\(streamingBytes)}")
-    await stream.cleanup()
+    var batch: UnifiedAsrManager?
+    var stream: StreamingUnifiedAsrManager?
+    if mode == "batch" || mode == "dual" {
+        let manager = UnifiedAsrManager()
+        try await manager.loadModels(from: directory)
+        _ = try await manager.transcribe(samples)
+        batch = manager
+    }
+    if mode == "streaming" || mode == "dual" {
+        let manager = StreamingUnifiedAsrManager()
+        try await manager.loadModels(from: directory)
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 16000, channels: 1, interleaved: false)!
+        for offset in stride(from: 0, to: samples.count, by: 320) {
+            let count = min(320, samples.count - offset)
+            let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(count))!
+            buffer.frameLength = AVAudioFrameCount(count)
+            samples.withUnsafeBufferPointer { buffer.floatChannelData![0].update(from: $0.baseAddress! + offset, count: count) }
+            try await manager.appendAudio(buffer)
+            try await manager.processBufferedAudio()
+            _ = await manager.consumeTokenTimings()
+        }
+        _ = try await manager.finish()
+        try await manager.reset()
+        stream = manager
+    }
+    print("{\"mode\":\"\(mode)\",\"baselineBytes\":\(baseline),\"warmedBytes\":\(physicalFootprint())}")
+    await batch?.cleanup()
+    await stream?.cleanup()
 }

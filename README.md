@@ -198,6 +198,83 @@ resource bundles beside its executable; `make package VERSION=candidate` creates
 self-contained arm64 directory with resources and notices. Models remain separately
 downloaded assets and are never bundled with this source package.
 
+## Streaming with ParakeetCore
+
+Unified supports streaming in `v0.2.0`; Ultra/v2/v3 remain batch-only. Prepare an
+engine with `mode: .streaming`. One engine holds one model stack: changing mode
+requires settling the session, unloading and preparing a new engine. The streaming
+encoder differs from the batch encoder; a shared disk cache does not provide an
+immediately prepared batch fallback.
+
+```swift
+let engine = ParakeetEngine(configuration: .init(mode: .streaming))
+try await engine.prepare()
+let session = try await engine.startStreaming()
+let observer = Task {
+    for try await update in session.updates {
+        // Full provisional text; check sessionID before updating this recording's UI.
+        print(update.revision, update.fullTranscript)
+    }
+}
+do {
+    var offset = 0
+    // Run from a serial capture worker, outside the real-time microphone callback.
+    for samples in ownedCaptureChunks {
+        try await session.append(PCM16kMono(samples: samples), startingAt: offset)
+        offset += samples.count
+    }
+    let final = try await session.finish()
+    try await observer.value
+    print(final.text) // authoritative raw ASR result; app performs cleanup/insertion
+} catch {
+    await session.cancel()
+    await session.waitForSettlement()
+    observer.cancel()
+    _ = try? await observer.value
+    throw error
+}
+try await engine.unload()
+```
+
+`append` accepts nonempty contiguous chunks, with sample offsets starting at zero.
+The default maximum chunk is 16,000 samples, total recording 120 seconds, and waiting
+queue eight jobs/240 seconds of PCM. Await each append from a serial sender; if using
+concurrent senders, rejection leaves the offset unreserved so the caller can retry.
+Overflow is explicit, never silent sample loss. Cancelling an accepted append cancels
+the entire recording because dropping a chunk would leave a hole. Queue/inference
+deadlines also end the recording. Nonpreemptible model work retains the engine until
+reset settles; `unload()` returns `.busy` during that interval.
+
+`finish()` drains accepted audio, flushes once, resets and releases the engine before
+returning. Repeated finish returns the cached result; simultaneous finishes return
+`.busy`. Empty recordings return empty text. Cancel is idempotent and clears unread
+provisional updates. If cancellation wins before successful final completion, the
+final result is suppressed; cancel after completion leaves the cached result intact.
+Use `waitForSettlement()` after cancellation before fallback/unload. An abandoned
+recording can also be cancelled through `engine.cancelStreaming()`.
+
+Updates have a session UUID, increasing revision and full text snapshot. They retain
+only the newest unread value for one observer, preserving bounded memory. Cancelling
+the observer ends observation while recording continues. `receivedAudioPosition`
+counts completed input; `processedAudioPosition` is nil because the pinned upstream
+manager does not expose a decoded frontier. Partials can be revised, and must not
+be inserted as committed dictation. No VAD segmentation splits pauses or corrections.
+
+Chunks of 320/640 samples (20/40 ms) work without per-chunk padding or resampling.
+The model processes larger windows as they become available; its default context
+implies about 2.08 seconds of theoretical partial lag. `finalizationDuration` measures
+residual flush only, `inferenceDuration` sums append/process/flush/reset work,
+`queueDuration` is the final operation's queue wait, and `totalDuration` spans the
+recording/session through reset. These describe different parts of the operation.
+
+Run the public example with `--streaming` added to the command above. See the
+[dated measurements](bench/results/2026-10-09.md) and
+[whispr-lite integration handoff](docs/WHISPR_LITE.md). Streaming preserved words on
+seven synthetic fixtures, with one final-period difference. It spends more compute
+while speaking, so batch remains the conservative app default. The consumer owns
+optional complete-audio retention and the safety timer; to fall back, cancel/settle,
+unload the streaming engine and prepare batch before replaying retained PCM.
+
 ## Tuning notes
 
 Measured on an M4 Pro (24 GB, macOS 26) with two synthetic dictations, an 8 s and a

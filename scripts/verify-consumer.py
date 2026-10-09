@@ -2,7 +2,7 @@
 """Verify a clean Git revision consumer, including a macOS .app assembly.
 
 With no arguments, snapshot the working tree into a temporary Git repository.
-For a published candidate: verify-consumer.py GIT_URL REVISION [MODEL_CACHE PCM_FILE]
+For a published candidate: verify-consumer.py GIT_URL REVISION [MODEL_CACHE PCM_FILE] [--streaming]
 The script never commits, tags or switches branches in the user's repository.
 """
 import json
@@ -64,5 +64,5 @@ with tempfile.TemporaryDirectory(prefix='parakeet-consumer-') as temporary:
         shutil.copytree(bundle, app / bundle.name)
     run([str(executable), '--check-resources'])
     if len(sys.argv) >= 5:
-        run([str(executable), '--transcribe', sys.argv[4], sys.argv[3]])
+        run([str(executable), '--transcribe', sys.argv[4], sys.argv[3]] + (['--streaming'] if '--streaming' in sys.argv[5:] else []))
     print(json.dumps({'revision': revision, 'consumer': 'passed', 'moduleIsolation': 'passed', 'appResources': 'passed'}))

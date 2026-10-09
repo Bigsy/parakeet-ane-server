@@ -43,5 +43,7 @@ jobs:
         run: .build/release/parakeet-ane-server --help
       - name: Compile and run public core consumer
         run: swift run -c release --package-path Examples/CoreConsumer --disable-keychain CoreConsumer
+      - name: Check public consumer resources
+        run: Examples/CoreConsumer/.build/release/CoreConsumer --check-resources
       - name: Verify standalone archive assembly
         run: ./scripts/package-server.sh ci
