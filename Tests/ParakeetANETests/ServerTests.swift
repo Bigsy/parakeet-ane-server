@@ -5,6 +5,7 @@ import Logging
 import Testing
 
 @testable import ParakeetANE
+@testable import ParakeetCore
 
 /// Echoes the sample count so tests can check what reached the model.
 struct StubModel: SpeechModel {
@@ -14,13 +15,37 @@ struct StubModel: SpeechModel {
     }
 }
 
+actor BlockingServerModel: SpeechModel {
+    nonisolated let id = "blocking"
+    private var continuation: CheckedContinuation<String, Never>?
+    private var started: CheckedContinuation<Void, Never>?
+    func transcribe(_ samples: [Float]) async throws -> String {
+        await withCheckedContinuation {
+            continuation = $0
+            started?.resume(); started = nil
+        }
+    }
+    func waitForStart() async {
+        if continuation != nil { return }
+        await withCheckedContinuation { started = $0 }
+    }
+    func release() { continuation?.resume(returning: "ok"); continuation = nil }
+}
+
+struct FailingServerModel: SpeechModel {
+    let id = "failure"
+    func transcribe(_ samples: [Float]) async throws -> String {
+        throw NSError(domain: "private transcript diagnostics", code: 1)
+    }
+}
+
 @Suite struct ServerTests {
     let boundary = "test-boundary-1234"
 
     func app(ffmpeg: String? = nil) -> some ApplicationProtocol {
         let logger = Logger(label: "test")
         let router = makeRouter(
-            service: TranscriptionService(model: StubModel(), logger: logger),
+            service: TranscriptionService(engine: ParakeetEngine(preparedModel: StubModel())),
             decoder: AudioDecoder(ffmpegPath: ffmpeg),
             options: ServerOptions(host: "127.0.0.1", port: 0),
             logger: logger
@@ -143,6 +168,70 @@ struct StubModel: SpeechModel {
     ])
     func parsesMultipartBoundary(header: String, expected: String) {
         #expect(multipartBoundary(header) == expected)
+    }
+
+    @Test func preservesUnpaddedVerboseDuration() async throws {
+        let (headers, body) = upload(TestAudio.wav(seconds: 0.25), fields: ["response_format": "verbose_json"])
+        try await app().test(.router) { client in
+            try await client.execute(uri: "/v1/audio/transcriptions", method: .post, headers: headers, body: body) {
+                let json = try #require(try JSONSerialization.jsonObject(with: Data(buffer: $0.body)) as? [String: Any])
+                #expect(json["text"] as? String == "heard 16000 samples")
+                #expect(json["duration"] as? Double == 0.25)
+                #expect((json["segments"] as? [[String: Any]])?.first?["end"] as? Double == 0.25)
+            }
+        }
+    }
+
+    @Test func mapsLimitsAndFailedReadiness() async throws {
+        let engine = ParakeetEngine(configuration: .init(maximumAudioSamples: 1), preparedModel: StubModel())
+        let router = makeRouter(service: .init(engine: engine), decoder: .init(ffmpegPath: nil),
+                                options: .init(host: "127.0.0.1", port: 0), logger: .init(label: "test"))
+        let (headers, body) = upload(TestAudio.wav(seconds: 0.25))
+        try await Application(router: router).test(.router) { client in
+            try await client.execute(uri: "/v1/audio/transcriptions", method: .post, headers: headers, body: body) {
+                #expect($0.status == .contentTooLarge)
+                #expect(String(buffer: $0.body).contains("invalid_request_error"))
+            }
+            try await engine.unload()
+            try await client.execute(uri: "/health", method: .get) { #expect($0.status == .serviceUnavailable) }
+        }
+    }
+
+    @Test func queueFullIs503AndErrorsAreSanitized() async throws {
+        let model = BlockingServerModel()
+        let engine = ParakeetEngine(configuration: .init(queueCapacity: 0), preparedModel: model)
+        let active = Task { try await engine.transcribe(PCM16kMono(samples: [0])) }
+        await model.waitForStart()
+        let logger = Logger(label: "test")
+        let router = makeRouter(service: .init(engine: engine), decoder: .init(ffmpegPath: nil),
+                                options: .init(host: "127.0.0.1", port: 0), logger: logger)
+        let (headers, body) = upload(TestAudio.wav(seconds: 0.25))
+        try await Application(router: router).test(.router) { client in
+            try await client.execute(uri: "/v1/audio/transcriptions", method: .post, headers: headers, body: body) {
+                #expect($0.status == .serviceUnavailable)
+                #expect(String(buffer: $0.body).contains("server_error"))
+            }
+        }
+        await model.release(); _ = try await active.value
+        let failing = makeRouter(service: .init(engine: ParakeetEngine(preparedModel: FailingServerModel())),
+                                 decoder: .init(ffmpegPath: nil), options: .init(host: "127.0.0.1", port: 0), logger: logger)
+        try await Application(router: failing).test(.router) { client in
+            try await client.execute(uri: "/v1/audio/transcriptions", method: .post, headers: headers, body: body) {
+                #expect($0.status == .internalServerError)
+                #expect(!String(buffer: $0.body).contains("private transcript"))
+            }
+        }
+    }
+
+    @Test func rejectsMissingFile() async throws {
+        try await app().test(.router) { client in
+            try await client.execute(uri: "/v1/audio/transcriptions", method: .post,
+                                     headers: [.contentType: "multipart/form-data; boundary=empty"],
+                                     body: ByteBuffer(string: "--empty--\r\n")) {
+                #expect($0.status == .badRequest)
+                #expect(String(buffer: $0.body).contains("invalid_request_error"))
+            }
+        }
     }
 
     @Test func rejectsNonMultipartContentTypes() {

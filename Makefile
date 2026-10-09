@@ -4,7 +4,7 @@ AGENT_DIR := $(HOME)/Library/LaunchAgents
 AGENT     := $(AGENT_DIR)/$(LABEL).plist
 DOMAIN    := gui/$(shell id -u)
 
-.PHONY: build test install uninstall restart logs
+.PHONY: build test test-core consumer benchmark package install uninstall restart logs
 
 build:
 	swift build -c release
@@ -12,10 +12,24 @@ build:
 test:
 	swift test
 
+test-core:
+	swift test --filter ParakeetCoreTests
+
+consumer:
+	swift run -c release --package-path Examples/CoreConsumer CoreConsumer
+
+benchmark:
+	python3 bench/generate.py
+	swift build -c release --package-path bench
+
+package: build
+	./scripts/package-server.sh $(VERSION)
+
 # Copy the binary out of .build so `swift package clean` can't break the service.
 install: build
 	mkdir -p "$(BIN_DIR)" "$(AGENT_DIR)" "$(HOME)/Library/Logs"
 	install -m 755 .build/release/parakeet-ane-server "$(BIN_DIR)/parakeet-ane-server"
+	@for bundle in .build/release/*.bundle; do [ ! -d "$$bundle" ] || cp -Rf "$$bundle" "$(BIN_DIR)/"; done
 	cp launchd/$(LABEL).plist "$(AGENT)"
 	/usr/libexec/PlistBuddy -c 'Set :ProgramArguments:0 $(BIN_DIR)/parakeet-ane-server' "$(AGENT)"
 	/usr/libexec/PlistBuddy -c 'Set :StandardOutPath $(HOME)/Library/Logs/parakeet-ane-server.log' "$(AGENT)"

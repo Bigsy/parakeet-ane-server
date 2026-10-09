@@ -1,0 +1,19 @@
+2026-10-09T21:38:18+0100 info baseline: [Benchmark] Warm-up took 99 ms
+        1.55 real         0.97 user         0.30 sys
+            70008832  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               10993  page reclaims
+                  16  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+               14372  involuntary context switches
+          6462493080  instructions retired
+          3704445261  cycles elapsed
+            69157584  peak memory footprint

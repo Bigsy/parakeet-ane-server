@@ -1,0 +1,420 @@
+{"fixture":"correction.f32le","implementation":"baseline","iteration":0,"milliseconds":118.72475,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":1,"milliseconds":90.654,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":2,"milliseconds":93.627125,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":3,"milliseconds":92.544709,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":4,"milliseconds":91.985375,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":5,"milliseconds":92.997166,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":6,"milliseconds":93.702833,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":7,"milliseconds":92.349125,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":8,"milliseconds":88.208291,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":9,"milliseconds":103.455708,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":10,"milliseconds":92.5375,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":11,"milliseconds":145.619291,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":12,"milliseconds":102.90375,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":13,"milliseconds":95.162292,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":14,"milliseconds":93.938667,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":0,"milliseconds":96.028625,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":1,"milliseconds":89.286583,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":2,"milliseconds":93.563791,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":3,"milliseconds":88.505834,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":4,"milliseconds":87.702167,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":5,"milliseconds":91.348375,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":6,"milliseconds":88.752167,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":7,"milliseconds":89.422417,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":8,"milliseconds":91.614583,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":9,"milliseconds":88.604083,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":10,"milliseconds":90.864167,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":11,"milliseconds":88.759791,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":12,"milliseconds":86.52775,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":13,"milliseconds":92.416,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":14,"milliseconds":90.502583,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":0,"milliseconds":86.819791,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":1,"milliseconds":82.317875,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":2,"milliseconds":87.0285,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":3,"milliseconds":87.858042,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":4,"milliseconds":85.44375,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":5,"milliseconds":83.1365,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":6,"milliseconds":85.591916,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":7,"milliseconds":84.684834,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":8,"milliseconds":85.148209,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":9,"milliseconds":87.106625,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":10,"milliseconds":88.206334,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":11,"milliseconds":81.69,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":12,"milliseconds":83.802458,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":13,"milliseconds":88.747,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"core","iteration":14,"milliseconds":83.336458,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":0,"milliseconds":86.763458,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":1,"milliseconds":85.2015,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":2,"milliseconds":86.920834,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":3,"milliseconds":87.279292,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":4,"milliseconds":88.069625,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":5,"milliseconds":122.470292,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":6,"milliseconds":87.922167,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":7,"milliseconds":88.708375,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":8,"milliseconds":86.215125,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":9,"milliseconds":85.7795,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":10,"milliseconds":86.305958,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":11,"milliseconds":86.966042,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":12,"milliseconds":82.865667,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":13,"milliseconds":85.98625,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"correction.f32le","implementation":"baseline","iteration":14,"milliseconds":87.110583,"text":"The meeting is on Tuesday. Sorry, I mean Thursday, at half past nine."}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":0,"milliseconds":99.087334,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":1,"milliseconds":94.351917,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":2,"milliseconds":96.561584,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":3,"milliseconds":92.963625,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":4,"milliseconds":95.084667,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":5,"milliseconds":98.941458,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":6,"milliseconds":99.222125,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":7,"milliseconds":95.310208,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":8,"milliseconds":93.223292,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":9,"milliseconds":94.264666,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":10,"milliseconds":95.581875,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":11,"milliseconds":91.9935,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":12,"milliseconds":91.378333,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":13,"milliseconds":92.453917,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":14,"milliseconds":91.721375,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":0,"milliseconds":93.661542,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":1,"milliseconds":90.729833,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":2,"milliseconds":94.4795,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":3,"milliseconds":93.305375,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":4,"milliseconds":89.66125,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":5,"milliseconds":95.540417,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":6,"milliseconds":92.269084,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":7,"milliseconds":88.973291,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":8,"milliseconds":92.224833,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":9,"milliseconds":99.023125,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":10,"milliseconds":90.963666,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":11,"milliseconds":98.251,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":12,"milliseconds":94.040709,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":13,"milliseconds":93.834083,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":14,"milliseconds":96.295625,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":0,"milliseconds":92.800084,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":1,"milliseconds":92.075042,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":2,"milliseconds":90.798041,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":3,"milliseconds":90.065792,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":4,"milliseconds":96.276041,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":5,"milliseconds":96.676792,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":6,"milliseconds":97.444542,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":7,"milliseconds":100.907167,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":8,"milliseconds":94.781834,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":9,"milliseconds":93.290875,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":10,"milliseconds":96.432292,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":11,"milliseconds":97.454333,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":12,"milliseconds":95.763792,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":13,"milliseconds":92.890334,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"core","iteration":14,"milliseconds":95.133709,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":0,"milliseconds":93.083291,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":1,"milliseconds":93.350584,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":2,"milliseconds":94.29775,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":3,"milliseconds":94.863042,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":4,"milliseconds":91.872958,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":5,"milliseconds":95.8725,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":6,"milliseconds":94.594292,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":7,"milliseconds":97.731417,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":8,"milliseconds":91.838875,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":9,"milliseconds":96.616,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":10,"milliseconds":92.953792,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":11,"milliseconds":92.953083,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":12,"milliseconds":92.4905,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":13,"milliseconds":93.189,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"eight.f32le","implementation":"baseline","iteration":14,"milliseconds":93.662291,"text":"Could you send the revised document before lunch? I will review it this afternoon"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":0,"milliseconds":73.951208,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":1,"milliseconds":73.15975,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":2,"milliseconds":70.597708,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":3,"milliseconds":72.25425,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":4,"milliseconds":70.521916,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":5,"milliseconds":74.562958,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":6,"milliseconds":71.475333,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":7,"milliseconds":72.727833,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":8,"milliseconds":70.080708,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":9,"milliseconds":69.265875,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":10,"milliseconds":69.212,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":11,"milliseconds":71.296,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":12,"milliseconds":68.552125,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":13,"milliseconds":69.725625,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":14,"milliseconds":69.3635,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":0,"milliseconds":71.22425,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":1,"milliseconds":73.95575,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":2,"milliseconds":71.378292,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":3,"milliseconds":68.660459,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":4,"milliseconds":69.869041,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":5,"milliseconds":70.543042,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":6,"milliseconds":70.921083,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":7,"milliseconds":70.501041,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":8,"milliseconds":70.374583,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":9,"milliseconds":70.51075,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":10,"milliseconds":69.62675,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":11,"milliseconds":69.615875,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":12,"milliseconds":71.342959,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":13,"milliseconds":70.676917,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":14,"milliseconds":69.786583,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":0,"milliseconds":71.5755,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":1,"milliseconds":82.168209,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":2,"milliseconds":72.019125,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":3,"milliseconds":71.03925,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":4,"milliseconds":74.035167,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":5,"milliseconds":76.090875,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":6,"milliseconds":71.55825,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":7,"milliseconds":77.748792,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":8,"milliseconds":73.989708,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":9,"milliseconds":72.802958,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":10,"milliseconds":73.557542,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":11,"milliseconds":70.094292,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":12,"milliseconds":68.734708,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":13,"milliseconds":72.621917,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"core","iteration":14,"milliseconds":71.424375,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":0,"milliseconds":72.764583,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":1,"milliseconds":70.045667,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":2,"milliseconds":71.964,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":3,"milliseconds":71.596709,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":4,"milliseconds":68.686458,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":5,"milliseconds":72.581292,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":6,"milliseconds":71.62775,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":7,"milliseconds":76.556958,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":8,"milliseconds":71.981292,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":9,"milliseconds":70.902541,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":10,"milliseconds":72.481125,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":11,"milliseconds":70.500084,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":12,"milliseconds":69.362458,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":13,"milliseconds":70.644667,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"ending.f32le","implementation":"baseline","iteration":14,"milliseconds":75.758125,"text":"Is the meeting still scheduled for Thursday?"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":0,"milliseconds":89.567708,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":1,"milliseconds":83.968666,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":2,"milliseconds":83.076208,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":3,"milliseconds":83.641292,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":4,"milliseconds":84.226375,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":5,"milliseconds":80.073625,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":6,"milliseconds":81.789584,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":7,"milliseconds":83.877959,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":8,"milliseconds":82.935417,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":9,"milliseconds":83.848292,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":10,"milliseconds":80.653375,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":11,"milliseconds":82.614458,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":12,"milliseconds":85.424125,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":13,"milliseconds":82.286708,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":14,"milliseconds":82.838666,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":0,"milliseconds":84.982875,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":1,"milliseconds":82.199833,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":2,"milliseconds":83.083917,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":3,"milliseconds":81.800416,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":4,"milliseconds":87.046209,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":5,"milliseconds":84.934125,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":6,"milliseconds":86.912292,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":7,"milliseconds":83.704542,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":8,"milliseconds":84.682291,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":9,"milliseconds":83.361042,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":10,"milliseconds":87.187917,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":11,"milliseconds":85.002417,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":12,"milliseconds":84.876958,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":13,"milliseconds":84.510542,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":14,"milliseconds":84.886,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":0,"milliseconds":84.618333,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":1,"milliseconds":82.973125,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":2,"milliseconds":84.319958,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":3,"milliseconds":83.414708,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":4,"milliseconds":83.965,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":5,"milliseconds":82.190333,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":6,"milliseconds":80.856208,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":7,"milliseconds":85.839833,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":8,"milliseconds":84.893292,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":9,"milliseconds":84.346792,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":10,"milliseconds":89.409708,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":11,"milliseconds":84.989833,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":12,"milliseconds":85.12075,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":13,"milliseconds":92.0475,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"core","iteration":14,"milliseconds":83.977417,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":0,"milliseconds":85.559208,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":1,"milliseconds":82.755708,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":2,"milliseconds":87.736125,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":3,"milliseconds":89.34775,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":4,"milliseconds":85.128375,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":5,"milliseconds":86.879208,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":6,"milliseconds":87.148083,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":7,"milliseconds":83.680375,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":8,"milliseconds":94.661709,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":9,"milliseconds":86.285625,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":10,"milliseconds":85.560167,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":11,"milliseconds":86.859125,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":12,"milliseconds":87.172959,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":13,"milliseconds":86.462625,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"paused.f32le","implementation":"baseline","iteration":14,"milliseconds":84.796833,"text":"Please send the draft and include the figures. Thank you"}
+{"fixture":"short.f32le","implementation":"baseline","iteration":0,"milliseconds":62.764209,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":1,"milliseconds":61.705,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":2,"milliseconds":61.909,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":3,"milliseconds":62.34275,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":4,"milliseconds":69.439375,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":5,"milliseconds":60.923708,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":6,"milliseconds":64.619709,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":7,"milliseconds":62.915834,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":8,"milliseconds":61.698,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":9,"milliseconds":61.644917,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":10,"milliseconds":62.289042,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":11,"milliseconds":61.718542,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":12,"milliseconds":61.491125,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":13,"milliseconds":63.171333,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":14,"milliseconds":62.924917,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":0,"milliseconds":61.587958,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":1,"milliseconds":62.065083,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":2,"milliseconds":61.610209,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":3,"milliseconds":62.735125,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":4,"milliseconds":62.104042,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":5,"milliseconds":62.976709,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":6,"milliseconds":62.701792,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":7,"milliseconds":63.058708,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":8,"milliseconds":62.727459,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":9,"milliseconds":62.403666,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":10,"milliseconds":61.871167,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":11,"milliseconds":62.869875,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":12,"milliseconds":62.906833,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":13,"milliseconds":61.663708,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":14,"milliseconds":62.397083,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":0,"milliseconds":65.233666,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":1,"milliseconds":62.687417,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":2,"milliseconds":60.455458,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":3,"milliseconds":63.649875,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":4,"milliseconds":65.103459,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":5,"milliseconds":62.604583,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":6,"milliseconds":61.849834,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":7,"milliseconds":61.958875,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":8,"milliseconds":63.801416,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":9,"milliseconds":63.040417,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":10,"milliseconds":64.419,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":11,"milliseconds":63.598334,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":12,"milliseconds":109.262125,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":13,"milliseconds":70.301917,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"core","iteration":14,"milliseconds":63.996958,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":0,"milliseconds":64.565792,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":1,"milliseconds":65.018666,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":2,"milliseconds":63.348083,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":3,"milliseconds":63.341,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":4,"milliseconds":63.028792,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":5,"milliseconds":64.700958,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":6,"milliseconds":62.928917,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":7,"milliseconds":62.547958,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":8,"milliseconds":63.901292,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":9,"milliseconds":63.191917,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":10,"milliseconds":64.579583,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":11,"milliseconds":63.461958,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":12,"milliseconds":63.638667,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":13,"milliseconds":63.723917,"text":"Please send it today."}
+{"fixture":"short.f32le","implementation":"baseline","iteration":14,"milliseconds":62.469,"text":"Please send it today."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":0,"milliseconds":100.259542,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":1,"milliseconds":72.433791,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":2,"milliseconds":72.485458,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":3,"milliseconds":70.976917,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":4,"milliseconds":71.967166,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":5,"milliseconds":72.803334,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":6,"milliseconds":70.509084,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":7,"milliseconds":73.37425,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":8,"milliseconds":69.800291,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":9,"milliseconds":72.144875,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":10,"milliseconds":71.183625,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":11,"milliseconds":69.311208,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":12,"milliseconds":72.965625,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":13,"milliseconds":71.782625,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":14,"milliseconds":70.500916,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":0,"milliseconds":72.298167,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":1,"milliseconds":71.0515,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":2,"milliseconds":75.8895,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":3,"milliseconds":74.061583,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":4,"milliseconds":124.062458,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":5,"milliseconds":95.750417,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":6,"milliseconds":77.394292,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":7,"milliseconds":77.634917,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":8,"milliseconds":72.139042,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":9,"milliseconds":71.892167,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":10,"milliseconds":72.265041,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":11,"milliseconds":71.752375,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":12,"milliseconds":70.555542,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":13,"milliseconds":71.510375,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":14,"milliseconds":72.152875,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":0,"milliseconds":73.950375,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":1,"milliseconds":71.159458,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":2,"milliseconds":71.33375,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":3,"milliseconds":71.765042,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":4,"milliseconds":76.187042,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":5,"milliseconds":69.366791,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":6,"milliseconds":70.080583,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":7,"milliseconds":69.493958,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":8,"milliseconds":68.600625,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":9,"milliseconds":111.349208,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":10,"milliseconds":73.350833,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":11,"milliseconds":69.7855,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":12,"milliseconds":67.7115,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":13,"milliseconds":72.071583,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"core","iteration":14,"milliseconds":69.178375,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":0,"milliseconds":70.04875,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":1,"milliseconds":67.412875,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":2,"milliseconds":68.298791,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":3,"milliseconds":68.063083,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":4,"milliseconds":68.284625,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":5,"milliseconds":67.312375,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":6,"milliseconds":69.017833,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":7,"milliseconds":70.641417,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":8,"milliseconds":70.07475,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":9,"milliseconds":69.151458,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":10,"milliseconds":69.152583,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":11,"milliseconds":68.080125,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":12,"milliseconds":70.656458,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":13,"milliseconds":70.227583,"text":"Please remember to attach the final report."}
+{"fixture":"soft.f32le","implementation":"baseline","iteration":14,"milliseconds":67.844625,"text":"Please remember to attach the final report."}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":0,"milliseconds":234.772333,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":1,"milliseconds":237.037583,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":2,"milliseconds":248.553917,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":3,"milliseconds":247.226958,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":4,"milliseconds":246.19575,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":5,"milliseconds":244.671917,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":6,"milliseconds":244.301209,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":7,"milliseconds":238.377709,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":8,"milliseconds":235.175709,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":9,"milliseconds":253.485667,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":10,"milliseconds":251.314291,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":11,"milliseconds":236.323333,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":12,"milliseconds":238.16125,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":13,"milliseconds":248.869167,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":14,"milliseconds":238.4555,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":0,"milliseconds":250.206709,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":1,"milliseconds":266.141708,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":2,"milliseconds":267.794917,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":3,"milliseconds":252.431083,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":4,"milliseconds":249.814708,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":5,"milliseconds":240.902375,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":6,"milliseconds":254.71575,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":7,"milliseconds":245.624041,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":8,"milliseconds":274.75075,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":9,"milliseconds":250.984583,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":10,"milliseconds":252.526625,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":11,"milliseconds":265.45775,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":12,"milliseconds":271.5695,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":13,"milliseconds":248.846041,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":14,"milliseconds":251.601792,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":0,"milliseconds":279.688167,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":1,"milliseconds":310.240209,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":2,"milliseconds":277.37175,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":3,"milliseconds":331.882958,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":4,"milliseconds":278.116167,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":5,"milliseconds":273.487375,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":6,"milliseconds":272.568208,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":7,"milliseconds":273.254791,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":8,"milliseconds":284.009666,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":9,"milliseconds":294.119792,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":10,"milliseconds":336.077333,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":11,"milliseconds":290.51075,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":12,"milliseconds":293.557083,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":13,"milliseconds":301.937792,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"core","iteration":14,"milliseconds":287.244375,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":0,"milliseconds":272.93525,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":1,"milliseconds":271.231375,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":2,"milliseconds":286.010416,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":3,"milliseconds":295.056708,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":4,"milliseconds":315.978542,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":5,"milliseconds":281.476541,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":6,"milliseconds":281.295083,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":7,"milliseconds":271.15,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":8,"milliseconds":241.617416,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":9,"milliseconds":246.740334,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":10,"milliseconds":258.076291,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":11,"milliseconds":252.25975,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":12,"milliseconds":246.080667,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":13,"milliseconds":243.491458,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}
+{"fixture":"twenty-five.f32le","implementation":"baseline","iteration":14,"milliseconds":252.743666,"text":"I have reviewed the latest version of the document. The introduction is clear, but we should update the examples before sending it to the team. Please include the revised figures and add a short explanation of the next steps. We can discuss any remaining questions tomorrow morning"}

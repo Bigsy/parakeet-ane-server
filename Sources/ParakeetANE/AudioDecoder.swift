@@ -1,5 +1,6 @@
 import FluidAudio
 import Foundation
+import ParakeetCore
 
 public enum AudioDecodeError: Error, CustomStringConvertible {
     case unrecognisedFormat
@@ -37,7 +38,7 @@ public struct DecodedAudio: Sendable {
 /// Turns an uploaded audio file into 16 kHz mono Float32 samples, the input every
 /// Parakeet model expects.
 public struct AudioDecoder: Sendable {
-    public static let sampleRate = 16_000
+    public static let sampleRate = PCM16kMono.sampleRate
 
     /// Path to ffmpeg, used for containers Core Audio can't read (WebM, Ogg).
     public let ffmpegPath: String?

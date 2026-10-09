@@ -41,3 +41,7 @@ jobs:
         run: swift build -c release --disable-keychain --force-resolved-versions
       - name: Check command-line help
         run: .build/release/parakeet-ane-server --help
+      - name: Compile and run public core consumer
+        run: swift run -c release --package-path Examples/CoreConsumer --disable-keychain CoreConsumer
+      - name: Verify standalone archive assembly
+        run: ./scripts/package-server.sh ci

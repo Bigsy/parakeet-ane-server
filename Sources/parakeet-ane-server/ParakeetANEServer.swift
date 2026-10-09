@@ -2,6 +2,7 @@ import ArgumentParser
 import Foundation
 import Logging
 import ParakeetANE
+import ParakeetCore
 
 extension ModelChoice: ExpressibleByArgument {}
 
@@ -30,6 +31,27 @@ struct ParakeetANEServer: AsyncParsableCommand {
     @Option(help: "Log level: trace, debug, info, notice, warning, error, critical.")
     var logLevel = "info"
 
+    @Option(help: "Maximum decoded audio duration per request in seconds.")
+    var maxAudioSeconds = 3600
+
+    @Option(help: "Maximum waiting transcription jobs (excluding active inference).")
+    var queueCapacity = 8
+
+    @Option(help: "Maximum total waiting decoded audio duration in seconds.")
+    var maxQueuedAudioSeconds = 7200
+
+    @Option(help: "Base FluidAudio Models cache directory.")
+    var cacheRoot: String?
+
+    @Flag(help: "Require an existing model cache; never download during preparation.")
+    var offline = false
+
+    func validate() throws {
+        guard maxAudioSeconds > 0, maxAudioSeconds <= Int.max / PCM16kMono.sampleRate,
+              maxQueuedAudioSeconds >= 0, maxQueuedAudioSeconds <= Int.max / PCM16kMono.sampleRate,
+              queueCapacity >= 0 else { throw ValidationError("Invalid audio or queue limits.") }
+    }
+
     func run() async throws {
         var logger = Logger(label: "parakeet-ane-server")
         logger.logLevel = Logger.Level(rawValue: logLevel) ?? .info
@@ -41,11 +63,14 @@ struct ParakeetANEServer: AsyncParsableCommand {
 
         logger.info("Loading \(model.modelID) (downloads on first run)")
         let start = ContinuousClock.now
-        let speechModel = try await model.load()
-        logger.info("Loaded in \(start.duration(to: .now))")
-
-        let service = TranscriptionService(model: speechModel, logger: logger)
-        await service.warmUp()
+        let engine = ParakeetEngine(configuration: .init(
+            model: model, cacheRoot: cacheRoot.map { URL(fileURLWithPath: $0) },
+            downloadPolicy: offline ? .requireCached : .allow, queueCapacity: queueCapacity,
+            maximumAudioSamples: maxAudioSeconds * PCM16kMono.sampleRate,
+            maximumQueuedSamples: maxQueuedAudioSeconds * PCM16kMono.sampleRate))
+        try await engine.prepare()
+        logger.info("Prepared in \(start.duration(to: .now))")
+        let service = TranscriptionService(engine: engine)
 
         let options = ServerOptions(host: host, port: port, logTranscripts: logTranscripts)
         let app = makeApplication(

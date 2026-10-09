@@ -2,6 +2,7 @@ import Foundation
 import Hummingbird
 import Logging
 import MultipartKit
+import ParakeetCore
 
 public struct ServerOptions: Sendable {
     public var host: String
@@ -26,11 +27,11 @@ public func makeRouter(
     let router = Router()
 
     router.get("/health") { _, _ in
-        jsonResponse(["status": "ok"])
+        await service.isReady ? jsonResponse(["status": "ok"]) : errorResponse(.serviceUnavailable, "Model is not ready.")
     }
 
     router.get("/v1/models") { _, _ in
-        jsonResponse(ModelList(data: [.init(id: service.model.id)]))
+        jsonResponse(ModelList(data: [.init(id: service.modelID)]))
     }
 
     router.post("/v1/audio/transcriptions") { request, _ in
@@ -61,8 +62,17 @@ public func makeRouter(
         do {
             text = try await service.transcribe(audio.samples)
         } catch {
-            logger.error("Transcription failed: \(error)")
-            return errorResponse(.internalServerError, "Transcription failed: \(error)")
+            let coreError = error as? ParakeetError ?? .inferenceFailed
+            let status: HTTPResponse.Status
+            switch coreError {
+            case .queueFull, .busy, .notReady, .queueDeadlineExceeded: status = .serviceUnavailable
+            case .audioLimitExceeded: status = .contentTooLarge
+            case .invalidAudio: status = .badRequest
+            case .cancelled: status = .requestTimeout
+            default: status = .internalServerError
+            }
+            logger.error("Transcription failed: \(coreError)")
+            return errorResponse(status, coreError.localizedDescription)
         }
         let finished = ContinuousClock.now
 

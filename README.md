@@ -1,6 +1,6 @@
 # parakeet-ane-server
 
-A small OpenAI-compatible speech-to-text server for macOS that runs NVIDIA's Parakeet
+An in-process Swift ASR library and OpenAI-compatible speech-to-text server for macOS that run NVIDIA's Parakeet
 models on the Apple Neural Engine via [FluidAudio](https://github.com/FluidInference/FluidAudio).
 
 Built as a faster local transcription backend for [OpenWhispr](https://openwhispr.com),
@@ -88,22 +88,115 @@ by Core Audio's Opus decoder. Ogg, and any WebM outside that, go through ffmpeg.
 | `v2` | Parakeet TDT 0.6B v2, English only. |
 | `v3` | Parakeet TDT 0.6B v3, 25 European languages. |
 
-Requests are processed one at a time. Transcript text is not logged unless
+Requests are processed one at a time, with at most eight waiting jobs by default. Transcript text is not logged unless
 `--log-transcripts` is set; each request logs only audio length, format and timings.
 
 ## Local use and privacy
 
-The default listener is `127.0.0.1`. There is no authentication, TLS, rate limiting,
-or bounded request queue. Local processes can submit audio. Changing `--host` to a
+The default listener is `127.0.0.1`. There is no authentication, TLS,
+or rate limiting. The model queue is bounded. Local processes can submit audio. Changing `--host` to a
 LAN address or `0.0.0.0` lets other reachable clients submit audio as well; use an
 authenticated reverse proxy and access controls if you need remote access.
 
 Uploads are limited to 100 MiB including multipart overhead. Decoded audio is held
-in memory, with no duration limit, so use this server with trusted clients and
-dictation-sized recordings. WAV and other file-based decoding paths temporarily
+in memory. The default limit is one hour per request and two hours across waiting
+jobs; `--max-audio-seconds`, `--max-queued-audio-seconds` and `--queue-capacity`
+configure these limits. Decoding still happens before queue admission, so use trusted
+clients and dictation-sized recordings. Audio exceeding the limit returns HTTP 413;
+a full queue returns 503. Model failures return a sanitized 500 error. Startup fails
+if preparation or warm-up fails. Cancelling a request discards its result; an active
+CoreML operation retains ownership until it actually settles. WAV and other file-based decoding paths temporarily
 write audio to the macOS temporary directory and remove it when decoding finishes.
 Transcription runs locally; model downloads on first use require internet access.
 `--log-transcripts` writes potentially private dictation to the service log.
+
+## ParakeetCore integration
+
+`ParakeetCore` is a SwiftPM library product for macOS 14+ on Apple Silicon, using
+Swift 6.2+. It takes owned PCM directly in the application's process. It does not
+start a listener, request microphone access, install a service, handle hotkeys or
+clean up text with an LLM. Capture, resampling and text insertion belong to the app.
+
+For local development, depend on this repository by path (see
+[CoreConsumer](Examples/CoreConsumer)). For distribution, use the exact tested Git
+revision or release tag; do not copy ASR source into the app. Release tags are only
+published after the [release gates](PLAN.md) pass. The manifest exports both products;
+SwiftPM may fetch server dependencies while resolving the repository, but building
+the core consumer does not compile/link Hummingbird, MultipartKit or the server.
+
+```swift
+import ParakeetCore
+
+let engine = ParakeetEngine(configuration: .init(
+    model: .unified,
+    downloadPolicy: .allow))
+try await engine.prepare { progress in
+    // Unspecified executor: dispatch readiness UI updates to MainActor.
+    print(progress.stage)
+}
+let pcm = try PCM16kMono(samples: capturedSamples)
+let result = try await engine.transcribe(pcm)
+print(result.text) // raw ASR text, with existing whitespace trimming
+try await engine.unload()
+```
+
+PCM means **16,000 samples/second, mono Float32**, conventionally -1...1, without a
+WAV header or compression. Finite samples outside that range are preserved. Rate
+and channel count cannot be inferred from a sample array: the caller must convert
+capture audio first. NaN/infinity and oversized buffers are rejected. Empty audio
+returns empty text without inference; nonempty batch clips shorter than one second
+are padded once, while `actualAudioDuration` continues to describe the input.
+
+Constructing/importing an engine performs no downloads. `prepare()` checks the
+cache, downloads if allowed, loads/compiles and warms once. Progress fractions are
+only upstream download/compile progress; loading and warm-up can have no fraction.
+The default cache is `~/Library/Application Support/FluidAudio/Models`.
+`cacheRoot` changes that base directory, preserving repository-named subdirectories.
+`downloadPolicy: .requireCached` uses local loading only, with no global upstream
+network setting and no network recovery. Missing/incomplete caches fail explicitly.
+Corrupt model loads fail without automatically deleting shared caches. Preparation
+uses a nonblocking lock for cooperating ParakeetCore processes; other FluidAudio
+users do not participate in that lock. Do not manually clear a cache in use.
+
+Repeated preparation after success is a no-op; concurrent preparation returns
+`.busy`. Warm-up/load failure leaves `.failed`, and preparation can be retried.
+`state` is an actor snapshot; GUI readiness does not depend on an HTTP health probe.
+All public input, configuration, results and errors are `Sendable`.
+
+The library defaults to 120 seconds per recording, eight waiting jobs and 240 seconds
+of waiting PCM. Configure sample limits explicitly for longer workloads. Queue wait
+and inference timeouts are optional and distinct. `queueDuration`, `inferenceDuration`
+and `totalDuration` use a monotonic clock and contain no transcript logging. The core
+has no logging bootstrap or hidden text log; FluidAudio retains its own diagnostics.
+
+Cancelling the caller removes queued audio promptly and throws `.cancelled`.
+Cancellation during inference ends the caller's wait and suppresses late results,
+but Swift task cancellation does **not** guarantee that CoreML/ANE stops immediately.
+The next operation waits for actual completion. `unload()` rejects busy engines,
+is idempotent when idle and releases model references; immediate OS memory recovery
+is not guaranteed. Error categories distinguish readiness, cache/download/preparation,
+invalid audio, limits, queue capacity, cancellation and inference failures.
+
+Run the public consumer without model downloads:
+
+```sh
+make consumer
+# A real batch run, reading little-endian raw Float32 PCM:
+swift run -c release --package-path Examples/CoreConsumer CoreConsumer \
+  --transcribe audio.f32le /path/to/Models --download
+# Omit --download to require a valid offline cache.
+```
+
+SwiftPM builds FluidAudio's resource bundle and its default static NeMo dependency.
+App distribution must copy `FluidAudio_FluidAudio.bundle` to the location expected
+by its generated `Bundle.module` accessor and retain third-party notices. The SwiftPM
+CLI accessor uses `Bundle.main.bundleURL` (the app root in a manually assembled
+`.app`); Xcode app assembly may use `Contents/Resources`. `scripts/verify-consumer.py`
+builds a clean Git-revision consumer, checks module isolation and verifies resources
+in an actual app assembly. The standalone installer copies
+resource bundles beside its executable; `make package VERSION=candidate` creates a
+self-contained arm64 directory with resources and notices. Models remain separately
+downloaded assets and are never bundled with this source package.
 
 ## Tuning notes
 
@@ -220,7 +313,7 @@ release build on Apple Silicon macOS 15 and 26 without downloading speech models
 
 ## License and attribution
 
-Server code: [MIT](LICENSE). Models and dependencies retain their upstream licenses.
+Library and server code: [MIT](LICENSE). Models and dependencies retain their upstream licenses.
 The default Parakeet Unified model is CC-BY-4.0. NVIDIA created Parakeet, Fluid
 Inference provides FluidAudio and the CoreML conversions, and Moondream provides
 the Ultra post-training. See [third-party notices](THIRD_PARTY_NOTICES.md) for model

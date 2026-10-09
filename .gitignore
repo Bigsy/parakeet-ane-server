@@ -3,3 +3,6 @@
 *.xcodeproj
 DerivedData/
 .DS_Store
+
+# Keep the project implementation plan versionable despite global ignore rules.
+!/PLAN.md
