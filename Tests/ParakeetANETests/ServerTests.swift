@@ -79,7 +79,7 @@ struct StubModel: SpeechModel {
     @Test(.enabled(if: AudioDecoder.locateFFmpeg() != nil))
     func acceptsBrowserWebMUploads() async throws {
         let ffmpeg = try #require(AudioDecoder.locateFFmpeg())
-        let webm = try TestAudio.webm(fromWAV: TestAudio.wav(seconds: 1.5), ffmpeg: ffmpeg)
+        let webm = try TestAudio.opus(fromWAV: TestAudio.wav(seconds: 1.5), ffmpeg: ffmpeg)
         let (headers, body) = upload(webm)
         try await app(ffmpeg: ffmpeg).test(.router) { client in
             try await client.execute(uri: "/v1/audio/transcriptions", method: .post, headers: headers, body: body) {

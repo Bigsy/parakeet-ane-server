@@ -21,6 +21,19 @@ public enum AudioDecodeError: Error, CustomStringConvertible {
     }
 }
 
+public struct DecodedAudio: Sendable {
+    public enum Path: String, Sendable {
+        case coreAudio = "core-audio"
+        case webmOpus = "webm-opus"
+        case ffmpeg
+    }
+
+    public let samples: [Float]
+    public let format: AudioFormat?
+    /// Which decoder handled it, for the request log.
+    public let path: Path
+}
+
 /// Turns an uploaded audio file into 16 kHz mono Float32 samples, the input every
 /// Parakeet model expects.
 public struct AudioDecoder: Sendable {
@@ -40,14 +53,21 @@ public struct AudioDecoder: Sendable {
         return candidates.map { "\($0)/ffmpeg" }.first { FileManager.default.isExecutableFile(atPath: $0) }
     }
 
-    public func decode(_ bytes: [UInt8]) async throws -> (samples: [Float], format: AudioFormat?) {
+    public func decode(_ bytes: [UInt8]) async throws -> DecodedAudio {
         let format = AudioFormat.sniff(bytes)
+
+        // Browser recordings: demux and decode in-process, no temp file or ffmpeg.
+        if format == .webm, let samples = try? WebMOpus.decode(bytes) {
+            return DecodedAudio(samples: samples, format: format, path: .webmOpus)
+        }
+
         let input = try TemporaryFile(bytes: bytes, fileExtension: format?.fileExtension ?? "bin")
         defer { input.remove() }
 
         if let format, format.isNativelyDecodable {
             do {
-                return (try AudioConverter().resampleAudioFile(input.url), format)
+                let samples = try AudioConverter().resampleAudioFile(input.url)
+                return DecodedAudio(samples: samples, format: format, path: .coreAudio)
             } catch {
                 // A mislabelled or unusual file may still be readable by ffmpeg.
                 guard ffmpegPath != nil else { throw AudioDecodeError.nativeDecodeFailed(error) }
@@ -56,7 +76,8 @@ public struct AudioDecoder: Sendable {
         guard let ffmpegPath else {
             throw format == nil ? AudioDecodeError.unrecognisedFormat : AudioDecodeError.ffmpegUnavailable(format)
         }
-        return (try await Self.decodeWithFFmpeg(ffmpegPath, input: input.url), format)
+        let samples = try await Self.decodeWithFFmpeg(ffmpegPath, input: input.url)
+        return DecodedAudio(samples: samples, format: format, path: .ffmpeg)
     }
 
     private static func decodeWithFFmpeg(_ ffmpegPath: String, input: URL) async throws -> [Float] {

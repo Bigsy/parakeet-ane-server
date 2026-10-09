@@ -49,10 +49,9 @@ public func makeRouter(
             return errorResponse(.badRequest, "Unsupported response_format '\(form.responseFormat ?? "")'.")
         }
 
-        let samples: [Float]
-        let audioFormat: AudioFormat?
+        let audio: DecodedAudio
         do {
-            (samples, audioFormat) = try await decoder.decode(form.file.bytes)
+            audio = try await decoder.decode(form.file.bytes)
         } catch {
             return errorResponse(.badRequest, "\(error)")
         }
@@ -60,19 +59,20 @@ public func makeRouter(
 
         let text: String
         do {
-            text = try await service.transcribe(samples)
+            text = try await service.transcribe(audio.samples)
         } catch {
             logger.error("Transcription failed: \(error)")
             return errorResponse(.internalServerError, "Transcription failed: \(error)")
         }
         let finished = ContinuousClock.now
 
-        let audioSeconds = Double(samples.count) / Double(AudioDecoder.sampleRate)
+        let audioSeconds = Double(audio.samples.count) / Double(AudioDecoder.sampleRate)
         logger.info(
             """
             Transcribed \(String(format: "%.2f", audioSeconds)) s \
-            \(audioFormat?.rawValue ?? form.file.contentType ?? "unknown") \
-            (\(form.file.bytes.count) bytes): decode \(start.duration(to: decoded).milliseconds) ms, \
+            \(audio.format?.rawValue ?? form.file.contentType ?? "unknown") \
+            (\(form.file.bytes.count) bytes): decode \(start.duration(to: decoded).milliseconds) ms \
+            [\(audio.path.rawValue)], \
             asr \(decoded.duration(to: finished).milliseconds) ms, \
             total \(start.duration(to: finished).milliseconds) ms
             """)

@@ -18,11 +18,13 @@ enum TestAudio {
             + Array("data".utf8) + le(UInt32(pcm.count)) + pcm
     }
 
-    /// Encode a WAV to WebM/Opus with ffmpeg, as a browser recorder would produce.
-    static func webm(fromWAV wav: [UInt8], ffmpeg: String) throws -> [UInt8] {
+    /// Encode a WAV to Opus with ffmpeg: WebM by default, as a browser recorder would produce.
+    static func opus(
+        fromWAV wav: [UInt8], ffmpeg: String, container: String = "webm", extraArguments: [String] = []
+    ) throws -> [UInt8] {
         let dir = FileManager.default.temporaryDirectory
         let input = dir.appendingPathComponent("parakeet-test-\(UUID().uuidString).wav")
-        let output = dir.appendingPathComponent("parakeet-test-\(UUID().uuidString).webm")
+        let output = dir.appendingPathComponent("parakeet-test-\(UUID().uuidString).\(container)")
         defer {
             try? FileManager.default.removeItem(at: input)
             try? FileManager.default.removeItem(at: output)
@@ -30,10 +32,48 @@ enum TestAudio {
         try Data(wav).write(to: input)
         let process = Process()
         process.executableURL = URL(fileURLWithPath: ffmpeg)
-        process.arguments = ["-nostdin", "-loglevel", "error", "-i", input.path, "-c:a", "libopus", output.path]
+        process.arguments =
+            ["-nostdin", "-loglevel", "error", "-i", input.path, "-c:a", "libopus"] + extraArguments + [output.path]
         try process.run()
         process.waitUntilExit()
         return Array(try Data(contentsOf: output))
+    }
+
+    /// Deterministic white noise as a mono 16-bit WAV. Unlike a tone it has a single
+    /// unambiguous alignment, so offsets between decoders show up.
+    static func noiseWAV(seconds: Double, sampleRate: Int = 48_000) -> [UInt8] {
+        var state: UInt32 = 0x1234_5678
+        let frames = Int(seconds * Double(sampleRate))
+        var pcm: [UInt8] = []
+        pcm.reserveCapacity(frames * 2)
+        for _ in 0..<frames {
+            state = state &* 1_664_525 &+ 1_013_904_223
+            pcm += le(UInt16(bitPattern: Int16(truncatingIfNeeded: Int32(state >> 16) - 32_768) / 4))
+        }
+        return Array("RIFF".utf8) + le(UInt32(36 + pcm.count)) + Array("WAVE".utf8)
+            + Array("fmt ".utf8) + le(UInt32(16)) + le(UInt16(1)) + le(UInt16(1))
+            + le(UInt32(sampleRate)) + le(UInt32(sampleRate * 2)) + le(UInt16(2)) + le(UInt16(16))
+            + Array("data".utf8) + le(UInt32(pcm.count)) + pcm
+    }
+
+    /// Decode any file with ffmpeg to 16 kHz mono, as the reference decoder.
+    static func ffmpegDecode(_ bytes: [UInt8], ffmpeg: String) throws -> [Float] {
+        let input = FileManager.default.temporaryDirectory.appendingPathComponent("parakeet-test-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: input) }
+        try Data(bytes).write(to: input)
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: ffmpeg)
+        process.arguments = ["-nostdin", "-loglevel", "error", "-i", input.path, "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"]
+        let output = Pipe()
+        process.standardOutput = output
+        try process.run()
+        let data = try output.fileHandleForReading.readToEnd() ?? Data()
+        process.waitUntilExit()
+        return data.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }
+    }
+
+    static func rms(_ samples: [Float]) -> Float {
+        (samples.reduce(0) { $0 + $1 * $1 } / Float(max(samples.count, 1))).squareRoot()
     }
 
     /// A multipart/form-data body with a `file` part plus plain text fields.

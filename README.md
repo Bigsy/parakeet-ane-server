@@ -12,20 +12,27 @@ OpenWhispr's built-in Parakeet runs on the CPU through sherpa-onnx in a process 
 macOS happily swaps out between dictations. Same model (Parakeet Unified 0.6B), same
 M4 Pro, warm, end to end over HTTP:
 
-| Clip | OpenWhispr built-in (CPU) | This server (ANE), WebM upload | This server, WAV upload |
-|------|--------------------------:|-------------------------------:|------------------------:|
-| 8 s  | ~170 ms (~500 ms swapped) | ~105 ms                        | ~60 ms                  |
-| 25 s | ~530 ms                   | ~195 ms                        | ~145 ms                 |
+| Clip | OpenWhispr built-in (CPU)  | This server (ANE) |
+|------|---------------------------:|------------------:|
+| 8 s  | ~170 ms (~500 ms swapped)  | ~70 ms            |
+| 25 s | ~530 ms                    | ~175 ms           |
 
-WebM includes ~40-50 ms for ffmpeg to decode the Opus audio browsers record.
+This server's numbers include decoding the WebM/Opus uploads browsers record;
+OpenWhispr's built-in was fed raw samples, so its numbers don't. WebM is demuxed and
+decoded in-process (7-25 ms) rather than by spawning ffmpeg, which costs ~30 ms warm
+and ~150 ms after the Mac has been idle.
 
 Each upload is transcribed in one pass with full context. Nothing is split on pauses,
 so short phrases between pauses aren't dropped.
 
+After a minute or two idle the first request takes ~50 ms longer (~125 ms for the 8 s
+clip) while macOS clocks the CPU and Neural Engine back up. Re-running the model on
+silence every 30 s while idle didn't change that, so the server doesn't try.
+
 ## Install
 
-Needs macOS 14+, Apple Silicon, Xcode 16+ (Swift 6), and ffmpeg for WebM/Ogg uploads
-(`brew install ffmpeg`).
+Needs macOS 14+, Apple Silicon and Xcode 16+ (Swift 6). ffmpeg (`brew install ffmpeg`)
+is optional: it handles Ogg uploads and any WebM the built-in reader can't.
 
 ```sh
 make install
@@ -35,7 +42,7 @@ This builds a release binary, copies it to `~/.local/bin`, and installs a Launch
 (`com.hedworth.parakeet-ane`) that starts the server at login on `127.0.0.1:11435`.
 The first start downloads the CoreML models (~600 MB) into
 `~/Library/Application Support/FluidAudio/Models` and compiles them for the Neural
-Engine, which takes a minute. Later starts take about 12 s.
+Engine (~12 s once downloaded). Later starts take well under a second.
 
 `make logs` follows the log, `make restart` restarts it, `make uninstall` removes it.
 
@@ -59,7 +66,9 @@ curl -F file=@clip.wav http://127.0.0.1:11435/v1/audio/transcriptions
 ```
 
 Uploads are identified by their bytes, not their name or content type. WAV, AIFF,
-CAF, FLAC, MP3 and M4A decode natively; WebM and Ogg go through ffmpeg.
+CAF, FLAC, MP3 and M4A decode through Core Audio. WebM/Opus (single track, unlaced or
+fixed-laced, one frame duration: what browsers write) is demuxed in-process and decoded
+by Core Audio's Opus decoder. Ogg, and any WebM outside that, go through ffmpeg.
 
 ## Options
 
@@ -68,7 +77,6 @@ CAF, FLAC, MP3 and M4A decode natively; WebM and Ogg go through ffmpeg.
 --host <host>                   Address to bind (default: 127.0.0.1)
 --port <port>                   Port (default: 11435)
 --ffmpeg <path>                 ffmpeg binary (default: first found)
---keep-warm <seconds>           Re-warm the model after this long idle (default: off)
 --log-transcripts               Log transcript text (default: off)
 --log-level <level>             Log level (default: info)
 ```

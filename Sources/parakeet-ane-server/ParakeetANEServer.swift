@@ -24,9 +24,6 @@ struct ParakeetANEServer: AsyncParsableCommand {
     @Option(help: "Path to ffmpeg, for WebM/Ogg uploads. Defaults to the first one found.")
     var ffmpeg: String?
 
-    @Option(help: "Re-warm the model after this many idle seconds (0 disables).")
-    var keepWarm = 0
-
     @Flag(help: "Log transcript text (off by default).")
     var logTranscripts = false
 
@@ -49,9 +46,6 @@ struct ParakeetANEServer: AsyncParsableCommand {
 
         let service = TranscriptionService(model: speechModel, logger: logger)
         await service.warmUp()
-        if keepWarm > 0 {
-            Task { await service.keepWarm(every: .seconds(keepWarm)) }
-        }
 
         let options = ServerOptions(host: host, port: port, logTranscripts: logTranscripts)
         let app = makeApplication(
