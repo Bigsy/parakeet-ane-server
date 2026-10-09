@@ -8,6 +8,7 @@ The script never commits, tags or switches branches in the user's repository.
 import json
 from pathlib import Path
 import plistlib
+import re
 import shutil
 import subprocess
 import sys
@@ -38,10 +39,18 @@ with tempfile.TemporaryDirectory(prefix='parakeet-consumer-') as temporary:
         run(['git', '-C', str(snapshot), '-c', 'user.name=Parakeet verification', '-c', 'user.email=verification@localhost', 'commit', '-qm', 'Candidate snapshot'])
         revision = subprocess.check_output(['git', '-C', str(snapshot), 'rev-parse', 'HEAD'], text=True).strip()
         git_url = snapshot.as_uri()
+    # Use the example shipped at the candidate: a batch tag must not be checked
+    # with a later streaming example that imports APIs absent from that release.
+    source_checkout = temp / 'source'
+    run(['git', 'clone', '-q', '--no-checkout', git_url, str(source_checkout)])
+    run(['git', '-C', str(source_checkout), 'checkout', '-q', revision, '--', 'Examples/CoreConsumer'])
     consumer = temp / 'consumer'
-    shutil.copytree(root / 'Examples/CoreConsumer', consumer, ignore=shutil.ignore_patterns('.build', '.swiftpm'))
+    shutil.copytree(source_checkout / 'Examples/CoreConsumer', consumer, ignore=shutil.ignore_patterns('.build', '.swiftpm'))
     manifest = consumer / 'Package.swift'
-    manifest.write_text(manifest.read_text().replace('.package(path: "../..")', f'.package(url: "{git_url}", revision: "{revision}")'))
+    # Test release tags through semantic-version resolution, not merely Git ref checkout.
+    version = revision.removeprefix('v') if re.fullmatch(r'v?\d+\.\d+\.\d+', revision) else None
+    requirement = f'exact: "{version}"' if version else f'revision: "{revision}"'
+    manifest.write_text(manifest.read_text().replace('.package(path: "../..")', f'.package(url: "{git_url}", {requirement})'))
     log_path = root / '.build/consumer-git-verification.log'
     with log_path.open('w') as log:
         run(['swift', 'build', '-c', 'release', '--package-path', str(consumer), '--disable-keychain'], stdout=log, stderr=log)
@@ -65,4 +74,7 @@ with tempfile.TemporaryDirectory(prefix='parakeet-consumer-') as temporary:
     run([str(executable), '--check-resources'])
     if len(sys.argv) >= 5:
         run([str(executable), '--transcribe', sys.argv[4], sys.argv[3]] + (['--streaming'] if '--streaming' in sys.argv[5:] else []))
-    print(json.dumps({'revision': revision, 'consumer': 'passed', 'moduleIsolation': 'passed', 'appResources': 'passed'}))
+    pin = next(pin for pin in json.loads((consumer / 'Package.resolved').read_text())['pins'] if pin['identity'] == 'parakeet-ane-server')
+    if version:
+        assert pin['state']['version'] == version
+    print(json.dumps({'revision': revision, 'resolvedState': pin['state'], 'consumer': 'passed', 'moduleIsolation': 'passed', 'appResources': 'passed'}))
