@@ -117,10 +117,26 @@ Swift 6.2+. It takes owned PCM directly in the application's process. It does no
 start a listener, request microphone access, install a service, handle hotkeys or
 clean up text with an LLM. Capture, resampling and text insertion belong to the app.
 
+Use the public Git repository directly in Swift Package Manager. In Xcode, add
+`https://github.com/Bigsy/parakeet-ane-server.git`, choose exact version **0.2.0**,
+and select the **ParakeetCore** library product. A package manifest uses:
+
+```swift
+// Package.swift dependencies:
+.package(url: "https://github.com/Bigsy/parakeet-ane-server.git", exact: "0.2.0")
+// Your app/library target's dependencies:
+.product(name: "ParakeetCore", package: "parakeet-ane-server")
+```
+
+Then `import ParakeetCore`. No registry upload or copied ASR source is needed.
+[v0.1.0](https://github.com/Bigsy/parakeet-ane-server/releases/tag/v0.1.0) provides
+batch; [v0.2.0](https://github.com/Bigsy/parakeet-ane-server/releases/tag/v0.2.0)
+adds Unified streaming. Both exact versions passed fresh anonymous consumer builds,
+app resource checks and real inference. Commit the consuming project's resolved
+dependency state and review future upgrades, especially before 1.0.
+
 For local development, depend on this repository by path (see
-[CoreConsumer](Examples/CoreConsumer)). For distribution, use the exact tested Git
-revision or release tag; do not copy ASR source into the app. Release tags are only
-published after the [release gates](PLAN.md) pass. The manifest exports both products;
+[CoreConsumer](Examples/CoreConsumer)). The manifest exports both products;
 SwiftPM may fetch server dependencies while resolving the repository, but building
 the core consumer does not compile/link Hummingbird, MultipartKit or the server.
 
@@ -238,7 +254,8 @@ try await engine.unload()
 
 `append` accepts nonempty contiguous chunks, with sample offsets starting at zero.
 The default maximum chunk is 16,000 samples, total recording 120 seconds, and waiting
-queue eight jobs/240 seconds of PCM. Await each append from a serial sender; if using
+queue eight waiting audio jobs/240 seconds of PCM. Finish is one additional
+control operation queued behind accepted audio. Await each append from a serial sender; if using
 concurrent senders, rejection leaves the offset unreserved so the caller can retry.
 Overflow is explicit, never silent sample loss. Cancelling an accepted append cancels
 the entire recording because dropping a chunk would leave a hole. Queue/inference

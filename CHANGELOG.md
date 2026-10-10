@@ -15,7 +15,8 @@ unload and a separately prepared batch engine. Public types hide FluidAudio and
 remain Swift 6 Sendable. New `finalizationDuration` is optional (nil for batch);
 `receivedAudioPosition` reports completed input and `processedAudioPosition` stays
 nil rather than inventing an upstream decoded frontier. This is a pre-1.0 additive
-API release; pin the exact version and review later upgrades.
+API release; pin the exact version and review later upgrades. New ParakeetError
+cases may require updating exhaustive error switches in existing consumers.
 
 Includes public streaming examples, deterministic ownership/cancellation tests,
 630 public-session observations and paced CPU/wakeup measurements. All words match

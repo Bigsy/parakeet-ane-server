@@ -1,7 +1,8 @@
 # ParakeetCore library and standalone server implementation plan
 
-Updated: 9 October 2026. Status: M0–M3 and M5–M6 implemented; batch and streaming candidates validated.
-M4/M7 publication gates are pending the remaining commit/tag authorization.
+Updated: 10 October 2026. Status: M0–M7 implemented and both releases published.
+Exact-version anonymous consumer and app/inference checks passed. Batch and streaming
+GitHub CI passed on both macOS 15 and 26.
 
 Implementation evidence (9 October 2026): baseline 31 tests and release build passed;
 core/HTTP suites, public consumer, clean Git-revision consumer and macOS app resource
@@ -14,8 +15,16 @@ period compared with batch. Model weights remain outside source control. The pub
 observations and six paced runs; warmed batch/streaming/dual residency and CPU/wakeups
 are recorded in the same report. See `docs/WHISPR_LITE.md` for the app handoff.
 
-Batch commit `ef0a8eb` is on main and passed both macOS CI jobs. The batch-only
-cancellation admission fix and streaming candidate remain local until publication. Extended idle/energy and broader accuracy benchmarks remain
+Public releases: `v0.1.0` → `f186f989e5923c867c9955e096eee47980861449` and
+`v0.2.0` → `09873950b95b966ad8237caca1be1d604d235db6`. Both tags, notes and arm64
+archives are published in the existing public repository. Exact SwiftPM versions
+resolved anonymously, built without server modules, found app resources and
+transcribed the synthetic short fixture. Batch CI run `37994471277` passed both
+macOS jobs; streaming CI run `38037541065` also passed both jobs.
+See the [batch CI](https://github.com/Bigsy/parakeet-ane-server/actions/runs/37994471277)
+and [streaming CI](https://github.com/Bigsy/parakeet-ane-server/actions/runs/38037541065). Gitleaks 8.30.1 found no
+credentials across all reachable Git history; no audio/model/key/database files
+were found in historical paths. Extended idle/energy and broader accuracy remain
 opt-in; batch is the conservative first consumer default.
 
 Repository: `https://github.com/Bigsy/parakeet-ane-server`.
@@ -574,9 +583,9 @@ model-backed parity and performance evidence are recorded before choosing the ap
 SwiftPM consumes this Git repository and its `Package.swift`. There is no requirement
 to upload the code to a central SwiftPM registry. Package indexing/discovery is optional.
 
-- [ ] Publish a first tagged batch-library release, provisionally `v0.1.0`, after checking
+- [x] Publish a first tagged batch-library release, provisionally `v0.1.0`, after checking
   that the tag is unused and all batch/standalone/consumer gates pass.
-- [ ] Add streaming in a subsequent tagged release, provisionally `v0.2.0`, with clear
+- [x] Add streaming in a subsequent tagged release, provisionally `v0.2.0`, with clear
   pre-1.0 API compatibility notes. Do not wait for every streaming optimization to make
   the batch library available to whispr-lite.
 - [x] Document exact tag/commit pinning and resolved dependency ownership in the app
@@ -584,10 +593,10 @@ to upload the code to a central SwiftPM registry. Package indexing/discovery is 
 - [x] A private repository is usable with authenticated Git access by builders; a public
   repository allows ordinary URL-based resolution. Do not change visibility as part of
   the refactor without an explicit repository-owner decision.
-- [ ] Test the candidate revision from a clean consumer clone/cache, and test the actual
+- [x] Test the candidate revision from a clean consumer clone/cache, and test the actual
   tag after publication. GitHub release notes should state library and server behavior.
 - [x] Retain the independently buildable server at every tagged library release.
-- [ ] Publish the verified candidates/tags/releases to this existing GitHub repository
+- [x] Publish the verified candidates/tags/releases to this existing GitHub repository
   after authorization for their concrete payloads.
 
 Example consumer manifest fragment **after** the corresponding tag has been released:
@@ -662,7 +671,7 @@ before adding streaming; measure upstream behavior before creating a large sessi
 
 The work is complete when:
 
-- [ ] Another macOS package can resolve a tagged dependency and call `ParakeetCore`
+- [x] Another macOS package can resolve a tagged dependency and call `ParakeetCore`
   in-process with 16 kHz PCM, without copied ASR source or an HTTP server.
 - [x] Model preparation/readiness and cancellation are explicit, tested and usable by a GUI app.
 - [x] Streaming supports sequential repeated recordings with bounded state and one
