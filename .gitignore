@@ -6,3 +6,6 @@ DerivedData/
 
 # Keep the project implementation plan versionable despite global ignore rules.
 !/PLAN.md
+
+# Agent instructions stay local.
+/AGENTS.md
