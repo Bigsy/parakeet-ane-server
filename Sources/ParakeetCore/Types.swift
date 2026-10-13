@@ -99,6 +99,21 @@ public struct PreparationProgress: Sendable, Equatable {
     }
 }
 
+/// One recognized word, in seconds from the start of the submitted audio. Times are
+/// decoder emission frames (80 ms), not forced alignment: a start can sit slightly after
+/// the spoken onset, and an end can be a one-frame estimate.
+public struct TimedWord: Sendable, Equatable {
+    /// Includes attached punctuation, as decoded.
+    public let text: String
+    public let start: Double
+    public let end: Double
+    /// Mean decoder confidence of the word's tokens, 0...1.
+    public let confidence: Float
+    public init(text: String, start: Double, end: Double, confidence: Float) {
+        self.text = text; self.start = start; self.end = end; self.confidence = confidence
+    }
+}
+
 public struct TranscriptionResult: Sendable, Equatable {
     public let text: String
     public let modelID: String
@@ -108,11 +123,15 @@ public struct TranscriptionResult: Sendable, Equatable {
     public let totalDuration: Duration
     /// Streaming residual flush only; nil for batch.
     public let finalizationDuration: Duration?
+    /// Batch only, in emission order; nil for streaming results.
+    public let words: [TimedWord]?
 
     init(text: String, modelID: String, actualAudioDuration: Double, queueDuration: Duration,
-         inferenceDuration: Duration, totalDuration: Duration, finalizationDuration: Duration? = nil) {
+         inferenceDuration: Duration, totalDuration: Duration, finalizationDuration: Duration? = nil,
+         words: [TimedWord]? = nil) {
         self.text = text; self.modelID = modelID; self.actualAudioDuration = actualAudioDuration
         self.queueDuration = queueDuration; self.inferenceDuration = inferenceDuration
         self.totalDuration = totalDuration; self.finalizationDuration = finalizationDuration
+        self.words = words
     }
 }

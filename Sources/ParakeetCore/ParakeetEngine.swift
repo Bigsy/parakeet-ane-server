@@ -140,7 +140,8 @@ public actor ParakeetEngine {
         let start = ContinuousClock.now
         if audio.samples.isEmpty {
             return .init(text: "", modelID: modelID, actualAudioDuration: 0,
-                         queueDuration: .zero, inferenceDuration: .zero, totalDuration: start.duration(to: .now))
+                         queueDuration: .zero, inferenceDuration: .zero, totalDuration: start.duration(to: .now),
+                         words: [])
         }
         let id = UUID()
         let cancellation = CancellationFlag()
@@ -196,7 +197,7 @@ public actor ParakeetEngine {
             }
         }
         activeTask = Task {
-            let outcome: Result<String, any Error>
+            let outcome: Result<(text: String, words: [TimedWord]?), any Error>
             do {
                 try Task.checkCancellation()
                 guard !job.cancellation.isCancelled else { throw CancellationError() }
@@ -204,10 +205,10 @@ public actor ParakeetEngine {
                 let padded = samples.count < PCM16kMono.sampleRate
                     ? samples + [Float](repeating: 0, count: PCM16kMono.sampleRate - samples.count) : samples
                 guard !job.cancellation.isCancelled else { throw CancellationError() }
-                let text = try await model.transcribe(padded)
+                let result = try await model.transcribeWithWords(padded)
                 try Task.checkCancellation()
                 guard !job.cancellation.isCancelled else { throw CancellationError() }
-                outcome = .success(text.trimmingCharacters(in: .whitespacesAndNewlines))
+                outcome = .success((result.text.trimmingCharacters(in: .whitespacesAndNewlines), result.words))
             } catch { outcome = .failure(error) }
             self.complete(job.id, began: began, outcome: outcome)
         }
@@ -227,17 +228,18 @@ public actor ParakeetEngine {
         }
     }
 
-    private func complete(_ id: UUID, began: ContinuousClock.Instant, outcome: Result<String, any Error>) {
+    private func complete(_ id: UUID, began: ContinuousClock.Instant,
+                          outcome: Result<(text: String, words: [TimedWord]?), any Error>) {
         guard let job = active, job.id == id else { return }
         let ended = ContinuousClock.now
         activeDeadline?.cancel(); activeDeadline = nil
         activeTask = nil; active = nil
         switch outcome {
-        case .success(let text):
+        case .success(let result):
             job.continuation?.resume(returning: .init(
-                text: text, modelID: modelID, actualAudioDuration: job.audio.duration,
+                text: result.text, modelID: modelID, actualAudioDuration: job.audio.duration,
                 queueDuration: job.admitted.duration(to: began), inferenceDuration: began.duration(to: ended),
-                totalDuration: job.admitted.duration(to: ended)))
+                totalDuration: job.admitted.duration(to: ended), words: result.words))
         case .failure(let error):
             job.continuation?.resume(throwing: error is CancellationError ? ParakeetError.cancelled : ParakeetError.inferenceFailed)
         }

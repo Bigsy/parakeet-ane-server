@@ -1,13 +1,14 @@
 # whispr-lite integration handoff
 
 Target `ParakeetCore` from this repository with Swift 6.2+, Apple Silicon and macOS
-14+. The published exact package versions are `0.1.0` (batch) and `0.2.0` (batch plus
-Unified streaming). Both tags were verified with fresh anonymous consumer builds
-and real inference. Use `0.2.0` with batch as the initial mode; streaming is optional. Commit the app's own Package.resolved. The runnable public example is
+14+. The published exact package versions are `0.1.0` (batch), `0.2.0` (batch plus
+Unified streaming) and `0.3.0` (adds batch word timings). Each tag was verified with fresh
+anonymous consumer builds and real inference. Use `0.3.0` with batch as the initial mode;
+streaming is optional. Commit the app's own Package.resolved. The runnable public example is
 [CoreConsumer](../Examples/CoreConsumer); API/lifecycle details are in the [README](../README.md).
 
 ```swift
-.package(url: "https://github.com/Bigsy/parakeet-ane-server.git", exact: "0.2.0")
+.package(url: "https://github.com/Bigsy/parakeet-ane-server.git", exact: "0.3.0")
 // Target dependency:
 .product(name: "ParakeetCore", package: "parakeet-ane-server")
 ```
