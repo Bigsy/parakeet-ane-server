@@ -5,6 +5,40 @@ import Darwin
 protocol SpeechModel: Sendable {
     var id: String { get }
     func transcribe(_ samples: [Float]) async throws -> String
+    /// The engine's batch entry point; words are nil when the model reports no timings.
+    func transcribeWithWords(_ samples: [Float]) async throws -> (text: String, words: [TimedWord]?)
+}
+
+extension SpeechModel {
+    func transcribeWithWords(_ samples: [Float]) async throws -> (text: String, words: [TimedWord]?) {
+        (try await transcribe(samples), nil)
+    }
+}
+
+extension TimedWord {
+    /// FluidAudio's `buildWordTimings` grouping, keeping confidence: a piece with a leading
+    /// space (or SentencePiece `▁`) starts a word; other pieces join the current one.
+    static func words(pieces: [(text: String, start: Double, end: Double, confidence: Float)]) -> [TimedWord] {
+        var words: [TimedWord] = []
+        var text = "", start = 0.0, end = 0.0, confidence: Float = 0, count = 0
+        func flush() {
+            let trimmed = text.trimmingCharacters(in: .whitespaces)
+            if !trimmed.isEmpty { words.append(.init(text: trimmed, start: start, end: end, confidence: confidence / Float(count))) }
+        }
+        for piece in pieces where !piece.text.isEmpty && piece.text != "<blank>" && piece.text != "<pad>" {
+            let value = piece.text.replacingOccurrences(of: "\u{2581}", with: " ")
+            if value.hasPrefix(" ") || text.trimmingCharacters(in: .whitespaces).isEmpty {
+                flush(); text = value; start = piece.start; confidence = 0; count = 0
+            } else { text += value }
+            end = piece.end; confidence += piece.confidence; count += 1
+        }
+        flush()
+        return words
+    }
+
+    static func words(from timings: [TokenTiming]) -> [TimedWord] {
+        words(pieces: timings.map { ($0.token, $0.startTime, $0.endTime, $0.confidence) })
+    }
 }
 
 public enum ModelChoice: String, Sendable, CaseIterable {
@@ -134,13 +168,22 @@ struct UnifiedModel: SpeechModel {
     let id: String
     let manager: UnifiedAsrManager
     func transcribe(_ samples: [Float]) async throws -> String { try await manager.transcribe(samples) }
+    /// Same merged tokens and text as `transcribe`, plus their emission times.
+    func transcribeWithWords(_ samples: [Float]) async throws -> (text: String, words: [TimedWord]?) {
+        let result = try await manager.transcribeWithTimings(samples)
+        return (result.text, TimedWord.words(from: result.tokenTimings))
+    }
 }
 
 struct TdtModel: SpeechModel {
     let id: String
     let manager: AsrManager
     func transcribe(_ samples: [Float]) async throws -> String {
+        try await transcribeWithWords(samples).text
+    }
+    func transcribeWithWords(_ samples: [Float]) async throws -> (text: String, words: [TimedWord]?) {
         var state = TdtDecoderState.make(decoderLayers: await manager.decoderLayerCount)
-        return try await manager.transcribe(samples, decoderState: &state).text
+        let result = try await manager.transcribe(samples, decoderState: &state)
+        return (result.text, result.tokenTimings.map { TimedWord.words(from: $0) })
     }
 }

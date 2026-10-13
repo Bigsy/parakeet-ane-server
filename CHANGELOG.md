@@ -1,5 +1,15 @@
 # Releases
 
+## v0.3.0 - batch word timings
+
+Batch `TranscriptionResult` gains optional `words`: public `TimedWord` values with
+decoded text, start and end seconds from the start of the submitted audio, and mean
+token confidence. They are grouped from FluidAudio's existing token timings for every
+batch model (Unified via `transcribeWithTimings`, which returns the same text as
+`transcribe`), so no extra inference runs. Empty audio returns an empty list; streaming
+results leave `words` nil. Text, defaults, dependency pins and the standalone server are
+unchanged. This is a pre-1.0 additive API release; pin the exact version.
+
 ## v0.2.0 — Unified streaming sessions
 
 Adds ordered in-process Unified streaming with contiguous PCM offsets, bounded

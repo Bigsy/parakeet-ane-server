@@ -29,6 +29,16 @@ struct EchoModel: SpeechModel {
     func transcribe(_ samples: [Float]) async throws -> String { " \(samples.count) \n" }
 }
 
+struct WordModel: SpeechModel {
+    let id = "words"
+    static let words = [TimedWord(text: "Hello", start: 0.08, end: 0.4, confidence: 0.9),
+                        TimedWord(text: "there.", start: 0.48, end: 0.8, confidence: 0.8)]
+    func transcribe(_ samples: [Float]) async throws -> String { "Hello there." }
+    func transcribeWithWords(_ samples: [Float]) async throws -> (text: String, words: [TimedWord]?) {
+        (" Hello there. ", Self.words)
+    }
+}
+
 func waitUntil(_ condition: () async -> Bool) async {
     while !(await condition()) { await Task.yield() }
 }
@@ -47,6 +57,26 @@ func waitUntil(_ condition: () async -> Bool) async {
             #expect(result.actualAudioDuration == Double(count) / 16000)
             #expect(result.totalDuration >= result.inferenceDuration)
         }
+    }
+
+    @Test func batchResultsCarryModelWordTimings() async throws {
+        let audio = try PCM16kMono(samples: .init(repeating: 0, count: 16000))
+        let timed = try await ParakeetEngine(preparedModel: WordModel()).transcribe(audio)
+        #expect(timed.text == "Hello there." && timed.words == WordModel.words)
+        #expect(try await ParakeetEngine(preparedModel: EchoModel()).transcribe(audio).words == nil)
+        #expect(try await ParakeetEngine(preparedModel: WordModel()).transcribe(PCM16kMono(samples: [])).words == [])
+    }
+
+    @Test func tokenPiecesGroupIntoWordsWithMeanConfidence() {
+        let words = TimedWord.words(pieces: [
+            (" What", 0.0, 0.16, 0.9), (" do", 0.16, 0.24, 0.8), ("", 0.24, 0.32, 0), ("<blank>", 0.24, 0.32, 0),
+            (" you", 0.32, 0.4, 0.7), (" th", 0.4, 0.48, 1.0), ("ink", 0.48, 0.56, 0.6), ("?", 0.56, 0.64, 0.8),
+            ("\u{2581}Is", 1.0, 1.08, 0.5),
+        ])
+        #expect(words.map(\.text) == ["What", "do", "you", "think?", "Is"])
+        #expect(words[3].start == 0.4 && words[3].end == 0.64 && abs(words[3].confidence - 0.8) < 0.0001)
+        #expect(TimedWord.words(pieces: [("ing", 0.0, 0.08, 1.0), (" ok", 0.08, 0.16, 1.0)]).map(\.text) == ["ing", "ok"])
+        #expect(TimedWord.words(pieces: []).isEmpty)
     }
 
     @Test func cancellationBeforeAdmissionDoesNotInvokeModel() async throws {

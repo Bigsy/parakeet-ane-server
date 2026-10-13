@@ -118,12 +118,12 @@ start a listener, request microphone access, install a service, handle hotkeys o
 clean up text with an LLM. Capture, resampling and text insertion belong to the app.
 
 Use the public Git repository directly in Swift Package Manager. In Xcode, add
-`https://github.com/Bigsy/parakeet-ane-server.git`, choose exact version **0.2.0**,
+`https://github.com/Bigsy/parakeet-ane-server.git`, choose exact version **0.3.0**,
 and select the **ParakeetCore** library product. A package manifest uses:
 
 ```swift
 // Package.swift dependencies:
-.package(url: "https://github.com/Bigsy/parakeet-ane-server.git", exact: "0.2.0")
+.package(url: "https://github.com/Bigsy/parakeet-ane-server.git", exact: "0.3.0")
 // Your app/library target's dependencies:
 .product(name: "ParakeetCore", package: "parakeet-ane-server")
 ```
@@ -131,7 +131,8 @@ and select the **ParakeetCore** library product. A package manifest uses:
 Then `import ParakeetCore`. No registry upload or copied ASR source is needed.
 [v0.1.0](https://github.com/Bigsy/parakeet-ane-server/releases/tag/v0.1.0) provides
 batch; [v0.2.0](https://github.com/Bigsy/parakeet-ane-server/releases/tag/v0.2.0)
-adds Unified streaming. Both exact versions passed fresh anonymous consumer builds,
+adds Unified streaming; [v0.3.0](https://github.com/Bigsy/parakeet-ane-server/releases/tag/v0.3.0)
+adds batch word timings. Each exact version passed fresh anonymous consumer builds,
 app resource checks and real inference. Commit the consuming project's resolved
 dependency state and review future upgrades, especially before 1.0.
 
@@ -153,6 +154,7 @@ try await engine.prepare { progress in
 let pcm = try PCM16kMono(samples: capturedSamples)
 let result = try await engine.transcribe(pcm)
 print(result.text) // raw ASR text, with existing whitespace trimming
+print(result.words?.last?.end ?? 0) // batch word timings, in seconds
 try await engine.unload()
 ```
 
@@ -162,6 +164,13 @@ and channel count cannot be inferred from a sample array: the caller must conver
 capture audio first. NaN/infinity and oversized buffers are rejected. Empty audio
 returns empty text without inference; nonempty batch clips shorter than one second
 are padded once, while `actualAudioDuration` continues to describe the input.
+
+Batch results also carry `words`: each `TimedWord` has its decoded text (with attached
+punctuation), `start` and `end` in seconds from the start of the submitted audio, and
+the mean decoder confidence of its tokens. They come from FluidAudio's own token timings
+for every batch model and cost no extra inference. Times are 80 ms decoder emission
+frames, not forced alignment, so a start can sit slightly after the spoken onset. Empty
+audio returns no words; streaming results leave `words` nil.
 
 Constructing/importing an engine performs no downloads. `prepare()` checks the
 cache, downloads if allowed, loads/compiles and warms once. Progress fractions are
